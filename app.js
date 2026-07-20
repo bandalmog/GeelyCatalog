@@ -282,6 +282,7 @@ function buildChips() {
   row.innerHTML = all.map((c) => `<button class="chip ${c.k === 'all' ? 'active' : ''} ${c.k === 'bundles' ? 'chip-bundles' : ''}" data-cat="${c.k}" aria-pressed="${c.k === state.cat}">${escapeHtml(c.label)}</button>`).join('');
   row.querySelectorAll('.chip').forEach((btn) => {
     btn.addEventListener('click', () => {
+      hideBundleReturnBanner();
       state.cat = btn.dataset.cat;
       state.q = '';
       document.getElementById('searchInput').value = '';
@@ -306,9 +307,24 @@ function matchesModel(p) { return p.model === 'both' || p.model === state.model;
 // Splits a product/bundle-item name into normalized comparison words:
 // strips parenthetical suffixes like "(כבל סבתא)", lowercases, and splits
 // on whitespace/commas/slashes.
+// Hebrew catalog text sometimes writes a quantity as a digit ("3 חלקים")
+// and sometimes spelled out ("שלושה חלקים") — normalize both to the same
+// token so matching doesn't fail on that alone.
+const HEBREW_NUMBER_MAP = {
+  '1': 'אחד', 'אחד': 'אחד', 'אחת': 'אחד',
+  '2': 'שתיים', 'שתיים': 'שתיים', 'שניים': 'שתיים', 'זוג': 'שתיים',
+  '3': 'שלוש', 'שלושה': 'שלוש', 'שלוש': 'שלוש',
+  '4': 'ארבע', 'ארבעה': 'ארבע',
+  '5': 'חמש', 'חמישה': 'חמש',
+  '6': 'שש', 'שישה': 'שש',
+};
+
 function nameWords(s) {
   const stripped = String(s || '').replace(/\([^)]*\)/g, ' ');
-  return stripped.split(/[\s,/]+/).map((w) => w.trim().toLowerCase()).filter(Boolean);
+  return stripped.split(/[\s,/]+/).map((w) => {
+    const clean = w.trim().toLowerCase();
+    return HEBREW_NUMBER_MAP[clean] || clean;
+  }).filter(Boolean);
 }
 
 // Matches a free-text bundle item line (often shorthand, e.g. "פס תאורה
@@ -346,9 +362,15 @@ function findMatchingProduct(itemText, bundleModel) {
 
 // Jumps the catalog view to a specific product (used by clickable bundle
 // items) and opens its lightbox so the user sees the accessory itself.
+// Remembers where the user was (bundles view, model, search text) right
+// before clicking a linked accessory inside a bundle, so a "back to
+// bundle" banner can restore that exact view with one click.
+let bundleReturnState = null;
+
 function goToProduct(code) {
   const p = PRODUCTS.find((x) => x.code === code);
   if (!p) return;
+  bundleReturnState = { cat: state.cat, model: state.model, q: state.q };
   state.model = (p.model === 'both') ? state.model : p.model;
   state.cat = KNOWN_CATS.includes(p.cat) ? p.cat : 'all';
   state.q = p.code;
@@ -358,7 +380,27 @@ function goToProduct(code) {
   syncStateToUrl();
   render();
   openLightbox(p.code);
+  document.getElementById('bundleReturnBanner').hidden = false;
 }
+
+function hideBundleReturnBanner() {
+  document.getElementById('bundleReturnBanner').hidden = true;
+  bundleReturnState = null;
+}
+
+document.getElementById('bundleReturnBtn').addEventListener('click', () => {
+  if (!bundleReturnState) return;
+  state.cat = bundleReturnState.cat;
+  state.model = bundleReturnState.model;
+  state.q = bundleReturnState.q;
+  document.getElementById('searchInput').value = state.q;
+  closeLightbox();
+  applyHero();
+  buildChips();
+  syncStateToUrl();
+  render();
+  hideBundleReturnBanner();
+});
 
 function render() {
   const grid = document.getElementById('grid');
@@ -474,6 +516,7 @@ function render() {
 
 // ---------------- Splash / navigation ----------------
 function enterCatalog(model) {
+  hideBundleReturnBanner();
   state.model = model;
   document.querySelectorAll('#modelSwitch button').forEach((b) => b.classList.toggle('active', b.dataset.model === model));
   document.getElementById('splashScreen').style.display = 'none';
@@ -492,6 +535,7 @@ document.querySelectorAll('.splash-card').forEach((card) => {
 
 document.getElementById('backToSplashLink').addEventListener('click', (e) => {
   e.preventDefault();
+  hideBundleReturnBanner();
   document.getElementById('mainApp').style.display = 'none';
   document.getElementById('splashScreen').style.display = 'flex';
   document.getElementById('topNav').style.display = 'none';
@@ -502,6 +546,7 @@ document.getElementById('backToSplashLink').addEventListener('click', (e) => {
 document.getElementById('modelSwitch').addEventListener('click', (e) => {
   const btn = e.target.closest('button');
   if (!btn) return;
+  hideBundleReturnBanner();
   state.model = btn.dataset.model;
   applyHero();
   syncStateToUrl();
@@ -509,6 +554,7 @@ document.getElementById('modelSwitch').addEventListener('click', (e) => {
 });
 
 document.getElementById('searchInput').addEventListener('input', (e) => {
+  hideBundleReturnBanner();
   state.q = e.target.value;
   syncStateToUrl();
   render();
@@ -1007,7 +1053,7 @@ function exportPdf(model) {
   const bnds = BUNDLES.filter((b) => b.model === model);
   const issueDate = new Date().toLocaleDateString('he-IL', { year: 'numeric', month: 'long', day: 'numeric' });
 
-  const prodCards = prods.map((p) => {
+  const productCard = (p) => {
     const img = model === 'starray' ? p.img_sr : p.img_ex;
     const cat = CATS[p.cat] || { label: p.cat, color: '#9aa0b2' };
     const hasDiscount = p.discount && p.discount > 0;
@@ -1015,7 +1061,7 @@ function exportPdf(model) {
     return `
     <div class="pv-card">
       <div class="pv-img">
-        <span class="pv-cat-tag" style="background:${cat.color}">${escapeHtml(cat.label)}</span>
+        <span class="pv-cat-tag" style="color:${cat.color}">${escapeHtml(cat.label)}</span>
         ${img ? `<img src="${img}">` : ''}
       </div>
       <div class="pv-body">
@@ -1029,6 +1075,21 @@ function exportPdf(model) {
           <span class="pv-sku">${escapeHtml(p.code)}</span>
         </div>
       </div>
+    </div>`;
+  };
+
+  // Group accessories by category (in a fixed, deliberate order) instead of
+  // one flat grid, so the printed catalog reads like an organized brochure.
+  const catBlocks = Object.entries(CATS).map(([catKey, catInfo]) => {
+    const items = prods.filter((p) => p.cat === catKey);
+    if (!items.length) return '';
+    return `
+    <div class="pv-cat-block">
+      <div class="pv-cat-header">
+        <h3>${escapeHtml(catInfo.label)}</h3>
+        <span class="pv-cat-count">${items.length} פריטים</span>
+      </div>
+      <div class="pv-grid">${items.map(productCard).join('')}</div>
     </div>`;
   }).join('');
 
@@ -1054,27 +1115,55 @@ function exportPdf(model) {
   }).join('');
 
   pv.innerHTML = `
+    <div class="pv-page-frame"></div>
+
     <div class="pv-cover">
+      <div class="pv-cover-mark"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="pv-cover-photo">${heroImg ? `<img src="${heroImg}">` : ''}</div>
       <div class="pv-logo"><span></span><span></span><span></span><span></span><span></span><span></span></div>
       <div class="pv-brand">GEELY</div>
-      ${heroImg ? `<img src="${heroImg}">` : ''}
+      <div class="pv-eyebrow">קטלוג רשמי</div>
       <h1>${escapeHtml(modelName)}</h1>
-      <div class="pv-sub">קטלוג אביזרים וחבילות רשמי</div>
+      <div class="pv-sub">אביזרים וחבילות משתלמות</div>
       <div class="pv-cover-rule"></div>
       <div class="pv-cover-date">הופק בתאריך ${escapeHtml(issueDate)}</div>
     </div>
-    <div class="pv-section-title">אביזרים &mdash; ${escapeHtml(modelName)}</div>
-    <div class="pv-grid">${prodCards}</div>
+
+    <div class="pv-divider">
+      <div class="pv-divider-index">01 &middot; אביזרים</div>
+      <h2>אביזרים ל-${escapeHtml(modelName)}</h2>
+      <div class="pv-divider-rule"></div>
+      <p>מבחר אביזרי השדרוג, ההגנה, הטעינה והעיצוב הרשמיים לרכב שלכם &mdash; ${prods.length} פריטים.</p>
+    </div>
+    ${catBlocks}
+
     ${bnds.length ? `
-      <div class="pv-section-title" style="page-break-before:always;">חבילות &mdash; ${escapeHtml(modelName)}</div>
+      <div class="pv-divider">
+        <div class="pv-divider-index">02 &middot; חבילות</div>
+        <h2>חבילות משתלמות</h2>
+        <div class="pv-divider-rule"></div>
+        <p>שילובי אביזרים נבחרים במחיר מיוחד &mdash; ${bnds.length} חבילות זמינות.</p>
+      </div>
       <div class="pv-grid pv-grid-bundles">${bundleCards}</div>
     ` : ''}
+
     <div class="pv-footer">
-      ${escapeHtml(SITE_CONTENT.footer1)}<br>${escapeHtml(SITE_CONTENT.footer2)}<br>
       * המחירים עבור התוספות כפופים למחיר המחירון העדכני של חברתנו במועד תשלום התוספות
     </div>
+
+    <div class="pv-closing">
+      <div class="pv-logo"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <h2>תודה שבחרתם ב-GEELY</h2>
+      <p>לשאלות נוספות או לתיאום התקנה, נשמח לעמוד לרשותכם</p>
+      <div class="pv-closing-card">
+        <div>${escapeHtml(SITE_CONTENT.footer1)}</div>
+        <div>${escapeHtml(SITE_CONTENT.footer2)}</div>
+      </div>
+      <div class="pv-closing-rule"></div>
+    </div>
+
     <div class="pv-page-footer">
-      <span>GEELY &middot; קטלוג אביזרים רשמי</span>
+      <span>GEELY &middot; קטלוג ${escapeHtml(modelName)} רשמי</span>
       <span>${escapeHtml(issueDate)}</span>
     </div>
   `;

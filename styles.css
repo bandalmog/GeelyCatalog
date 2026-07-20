@@ -218,56 +218,82 @@
   /* ---------- print / PDF export ---------- */
   #printView{display:none;}
   @media print{
-    @page{size:A4; margin:16mm 14mm;}
+    @page{size:A4; margin:18mm 16mm;}
     body{background:#fff;}
     body > *:not(#printView){display:none !important;}
     #printView{display:block; font-family:'Heebo',sans-serif; color:#14161f;}
 
-    /* running header/footer repeated on every printed page */
+    /* thin frame + running footer repeated on every printed page — border
+       and text, never a fill, so it always prints regardless of the
+       browser's "background graphics" print setting */
+    .pv-page-frame{
+      position:fixed; top:-14mm; bottom:-14mm; right:-12mm; left:-12mm;
+      border:0.75pt solid #d8dbe4; pointer-events:none;
+    }
     .pv-page-footer{
-      position:fixed; bottom:-10mm; right:0; left:0; display:flex; justify-content:space-between;
-      font-size:7.5px; color:#9aa0b2; padding-top:2.5mm; border-top:0.5px solid #e4e7ef; letter-spacing:.3px;
+      position:fixed; bottom:-11mm; right:0; left:0; display:flex; justify-content:space-between;
+      font-size:7.5px; color:#9aa0b2; padding-top:2.5mm; border-top:0.5pt solid #e4e7ef; letter-spacing:.4px;
     }
 
     /* ---- cover page ---- */
     .pv-cover{
-      position:relative; text-align:center; padding:26mm 8mm 10mm; page-break-after:always; overflow:hidden;
+      position:relative; page-break-after:always; min-height:250mm;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+      padding:6mm 6mm 0;
     }
-    .pv-cover::before{
-      content:''; position:absolute; top:0; left:-14mm; right:-14mm; height:3mm;
-      background:linear-gradient(95deg, #e93a92 0%, #2f4bdd 55%, #7a2be0 100%);
+    .pv-cover-mark{
+      position:absolute; top:2mm; left:2mm; display:grid; grid-template-columns:repeat(3,4.2px); grid-template-rows:repeat(2,4.2px); gap:1.4px;
     }
-    .pv-cover .pv-logo{display:inline-grid; grid-template-columns:repeat(3,15px); grid-template-rows:repeat(2,15px); gap:4.5px; margin:8mm 0 14px;}
+    .pv-cover-mark span{background:#14161f; border-radius:1px;}
+    .pv-cover-photo{
+      width:100%; max-width:172mm; height:96mm; border-radius:16px; overflow:hidden;
+      border:1.25pt solid #14161f; margin-bottom:12mm; background:#fbfcfe;
+    }
+    .pv-cover-photo img{width:100%; height:100%; object-fit:cover; display:block;}
+    .pv-cover .pv-logo{display:inline-grid; grid-template-columns:repeat(3,15px); grid-template-rows:repeat(2,15px); gap:4.5px; margin-bottom:5mm;}
     .pv-cover .pv-logo span{background:#14161f; border-radius:2px;}
-    .pv-cover .pv-brand{font-size:32px; font-weight:900; letter-spacing:6px; margin-bottom:20mm; color:#14161f;}
-    .pv-cover img{max-width:145mm; max-height:82mm; object-fit:contain; filter:drop-shadow(0 10mm 14mm rgba(20,22,31,.16));}
-    .pv-cover h1{font-size:38px; font-weight:900; letter-spacing:-.5px; margin:14mm 0 4mm;}
-    .pv-cover .pv-sub{font-size:14px; color:#5a6072; letter-spacing:.3px;}
-    .pv-cover .pv-cover-date{font-size:10.5px; color:#9aa0b2; margin-top:7mm; letter-spacing:.4px;}
-    .pv-cover .pv-cover-rule{width:26mm; height:1.4px; margin:9mm auto 0; background:linear-gradient(90deg, #e93a92, #2f4bdd, #7a2be0);}
+    .pv-cover .pv-brand{font-size:22px; font-weight:900; letter-spacing:8px; margin-bottom:11mm; color:#14161f;}
+    .pv-cover .pv-eyebrow{
+      display:inline-block; font-size:9px; font-weight:800; letter-spacing:2px; color:#2f4bdd;
+      border:0.75pt solid #2f4bdd; border-radius:999px; padding:2mm 5mm; margin-bottom:7mm;
+    }
+    .pv-cover h1{font-size:42px; font-weight:900; letter-spacing:-1px; margin:0 0 4mm;}
+    .pv-cover .pv-sub{font-size:14px; color:#5a6072; letter-spacing:.3px; margin-bottom:9mm;}
+    .pv-cover-rule{width:30mm; height:1.6px; margin:0 auto 7mm; background:linear-gradient(90deg, #e93a92, #2f4bdd, #7a2be0);}
+    .pv-cover .pv-cover-date{
+      display:inline-block; font-size:9.5px; color:#9aa0b2; letter-spacing:.5px;
+      border:0.75pt solid #e4e7ef; border-radius:999px; padding:1.8mm 5mm;
+    }
 
-    /* ---- section titles ---- */
-    .pv-section-title{
-      position:relative; font-size:20px; font-weight:900; letter-spacing:-.2px; margin:0 0 7mm; padding-bottom:3mm;
+    /* ---- section divider pages ---- */
+    .pv-divider{
+      position:relative; page-break-before:always; page-break-after:always; min-height:250mm;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
     }
-    .pv-section-title::after{
-      content:''; position:absolute; left:0; bottom:0; width:100%; height:1.6px;
-      background:linear-gradient(90deg, #e93a92, #2f4bdd 55%, #7a2be0);
-    }
+    .pv-divider-index{font-size:10px; font-weight:800; letter-spacing:4px; color:#9aa0b2; margin-bottom:6mm;}
+    .pv-divider h2{font-size:36px; font-weight:900; letter-spacing:-.6px; margin:0 0 6mm;}
+    .pv-divider-rule{width:24mm; height:1.6px; margin:0 auto 7mm; background:linear-gradient(90deg, #e93a92, #2f4bdd, #7a2be0);}
+    .pv-divider p{font-size:12.5px; color:#5a6072; max-width:110mm; margin:0 auto; line-height:1.7;}
+
+    /* ---- category sub-sections within the accessories pages ---- */
+    .pv-cat-block{margin-bottom:9mm;}
+    .pv-cat-header{display:flex; align-items:baseline; gap:3mm; margin:0 0 4.5mm; padding-bottom:2mm; border-bottom:0.75pt solid #e4e7ef;}
+    .pv-cat-header h3{font-size:14.5px; font-weight:900; margin:0; letter-spacing:-.2px;}
+    .pv-cat-header .pv-cat-count{font-size:9px; color:#9aa0b2; margin-inline-start:auto; letter-spacing:.3px;}
 
     /* ---- product grid/cards ---- */
-    .pv-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:5.5mm; margin-bottom:9mm;}
+    .pv-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:5.5mm; margin-bottom:0;}
     .pv-card{
-      border:0.75pt solid #e4e7ef; border-radius:11px; overflow:hidden; page-break-inside:avoid; break-inside:avoid;
+      border:0.75pt solid #e4e7ef; border-radius:12px; overflow:hidden; page-break-inside:avoid; break-inside:avoid;
       background:#fff;
     }
     .pv-card .pv-img{position:relative; height:32mm; background:#fbfcfe; display:flex; align-items:center; justify-content:center; border-bottom:0.75pt solid #e4e7ef;}
     .pv-card .pv-img img{max-width:100%; max-height:100%; object-fit:contain;}
     .pv-cat-tag{
-      position:absolute; top:2mm; right:2mm; color:#fff; font-size:6.5px; font-weight:800; letter-spacing:.2px;
-      padding:1.2mm 2.2mm; border-radius:999px;
+      position:absolute; top:2mm; right:2mm; font-size:6.5px; font-weight:800; letter-spacing:.2px;
+      padding:1mm 2mm; border-radius:999px; background:#fff; border:0.75pt solid currentColor;
     }
-    .pv-card .pv-body{padding:3.2mm;}
+    .pv-card .pv-body{padding:3.4mm;}
     .pv-card h4{font-size:10.5px; font-weight:800; margin:0 0 1.5mm; line-height:1.3; min-height:5.6mm;}
     .pv-card .pv-desc{font-size:8px; color:#5a6072; line-height:1.45; min-height:7mm;}
     .pv-card .pv-foot{display:flex; justify-content:space-between; align-items:center; margin-top:2.2mm; padding-top:2mm; border-top:0.5pt dashed #e4e7ef;}
@@ -279,22 +305,38 @@
     /* ---- bundle grid/cards ---- */
     .pv-grid-bundles{grid-template-columns:repeat(2, 1fr);}
     .pv-bundle{
-      border:0.75pt solid #e4e7ef; border-radius:12px; overflow:hidden; page-break-inside:avoid; break-inside:avoid;
+      border:0.75pt solid #e4e7ef; border-radius:14px; overflow:hidden; page-break-inside:avoid; break-inside:avoid;
       background:#fff; position:relative;
     }
     .pv-bundle::before{content:''; position:absolute; top:0; right:0; left:0; height:1.4mm; background:linear-gradient(90deg, #e93a92, #2f4bdd, #7a2be0); z-index:1;}
-    .pv-bundle-img{height:28mm; background:#fbfcfe; border-bottom:0.75pt solid #e4e7ef;}
+    .pv-bundle-img{height:30mm; background:#fbfcfe; border-bottom:0.75pt solid #e4e7ef;}
     .pv-bundle-img img{width:100%; height:100%; object-fit:cover; display:block;}
-    .pv-bundle-body{padding:4mm;}
-    .pv-bundle h4{font-size:13px; font-weight:900; margin:0 0 2.5mm;}
-    .pv-items{list-style:none; margin:0 0 3mm; padding:0; font-size:8.5px; color:#5a6072; line-height:1.9;}
-    .pv-items li{position:relative; padding-inline-start:3.2mm;}
+    .pv-bundle-body{padding:4.5mm;}
+    .pv-bundle h4{font-size:13.5px; font-weight:900; margin:0 0 2.5mm; letter-spacing:-.1px;}
+    .pv-items{list-style:none; margin:0 0 3.5mm; padding:0; font-size:8.5px; color:#5a6072; line-height:1.95;}
+    .pv-items li{position:relative; padding-inline-start:3.4mm;}
     .pv-items li::before{content:''; position:absolute; right:0; top:1.9mm; width:1.4mm; height:1.4mm; border-radius:50%; background:#2f4bdd;}
-    .pv-bfoot{display:flex; justify-content:space-between; align-items:center; padding-top:2.2mm; border-top:0.5pt dashed #e4e7ef;}
-    .pv-save{font-size:7.5px; font-weight:800; color:#0f8a4d; background:rgba(15,138,77,.1); padding:0.8mm 2mm; border-radius:999px; margin-inline-start:2mm;}
+    .pv-bfoot{display:flex; justify-content:space-between; align-items:center; padding-top:2.4mm; border-top:0.5pt dashed #e4e7ef;}
+    .pv-save{font-size:7.5px; font-weight:800; color:#0f8a4d; border:0.75pt solid #0f8a4d; padding:0.7mm 2mm; border-radius:999px; margin-inline-start:2mm;}
 
-    .pv-footer{margin-top:7mm; padding-top:3.5mm; border-top:0.75pt solid #e4e7ef; font-size:8px; color:#5a6072; text-align:center; line-height:1.75;}
+    .pv-footer{margin-top:9mm; padding-top:4mm; border-top:0.75pt solid #e4e7ef; font-size:8px; color:#5a6072; text-align:center; line-height:1.8;}
+
+    /* ---- closing / back page ---- */
+    .pv-closing{
+      position:relative; page-break-before:always; min-height:250mm;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+    }
+    .pv-closing .pv-logo{display:inline-grid; grid-template-columns:repeat(3,13px); grid-template-rows:repeat(2,13px); gap:4px; margin-bottom:9mm;}
+    .pv-closing .pv-logo span{background:#14161f; border-radius:2px;}
+    .pv-closing h2{font-size:24px; font-weight:900; margin:0 0 4mm;}
+    .pv-closing p{font-size:12px; color:#5a6072; margin:0 0 10mm;}
+    .pv-closing-card{
+      border:0.75pt solid #e4e7ef; border-radius:16px; padding:8mm 12mm; display:inline-block;
+    }
+    .pv-closing-card div{font-size:12.5px; color:#14161f; line-height:2;}
+    .pv-closing-rule{width:24mm; height:1.6px; margin:9mm auto 0; background:linear-gradient(90deg, #e93a92, #2f4bdd, #7a2be0);}
   }
+
 
   /* ---------- admin ---------- */
   .admin-controls{display:flex; gap:8px; align-items:center;}
@@ -536,3 +578,12 @@ img.loaded{ opacity:1; }
   width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--line); font-family:inherit;
   font-size:16px; text-align:center; letter-spacing:3px; margin-bottom:8px;
 }
+
+/* ---------- "back to bundle" banner (new) ---------- */
+.bundle-return-banner{
+  position:fixed; top:72px; inset-inline:0; margin:0 auto; max-width:420px; z-index:150;
+  background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow-lg);
+  border-radius:14px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between;
+  gap:12px; font-size:12.5px; font-weight:700; color:var(--muted);
+}
+.bundle-return-banner[hidden]{ display:none; }
