@@ -303,11 +303,45 @@ function matchesModel(p) { return p.model === 'both' || p.model === state.model;
 // so we can show its live price on hover and link to it. If nothing
 // matches (e.g. the line describes a service, not a catalog item) the
 // item is rendered as plain text — never a broken/misleading link.
+// Splits a product/bundle-item name into normalized comparison words:
+// strips parenthetical suffixes like "(כבל סבתא)", lowercases, and splits
+// on whitespace/commas/slashes.
+function nameWords(s) {
+  const stripped = String(s || '').replace(/\([^)]*\)/g, ' ');
+  return stripped.split(/[\s,/]+/).map((w) => w.trim().toLowerCase()).filter(Boolean);
+}
+
+// Matches a free-text bundle item line (often shorthand, e.g. "פס תאורה
+// STARLED") to an actual catalog product (e.g. "פס תאורה קדמית STARLED").
+// Strategy: exact normalized match first; otherwise the item's words (or
+// the product's words) must be fully contained in the other — this catches
+// shorthand/expanded variants without ever matching on a single stray word.
+// If nothing matches, returns null and the item stays plain text.
 function findMatchingProduct(itemText, bundleModel) {
-  const norm = (s) => String(s).trim().toLowerCase();
-  const target = norm(itemText);
-  if (!target) return null;
-  return PRODUCTS.find((p) => (p.model === 'both' || p.model === bundleModel) && norm(p.name) === target) || null;
+  const itemWords = nameWords(itemText);
+  if (!itemWords.length) return null;
+  const candidates = PRODUCTS.filter((p) => p.model === 'both' || p.model === bundleModel);
+
+  const itemNorm = itemWords.join(' ');
+  const exact = candidates.find((p) => nameWords(p.name).join(' ') === itemNorm);
+  if (exact) return exact;
+
+  if (itemWords.length < 2) return null; // avoid matching on a single generic word
+  const itemSet = new Set(itemWords);
+
+  let best = null;
+  let bestScore = 0;
+  candidates.forEach((p) => {
+    const pWords = nameWords(p.name);
+    const pSet = new Set(pWords);
+    const itemSubsetOfProduct = itemWords.every((w) => pSet.has(w));
+    const productSubsetOfItem = pWords.every((w) => itemSet.has(w));
+    if (!itemSubsetOfProduct && !productSubsetOfItem) return;
+    const overlap = itemWords.filter((w) => pSet.has(w)).length;
+    const score = overlap - Math.abs(itemSet.size - pSet.size) * 0.1;
+    if (score > bestScore) { bestScore = score; best = p; }
+  });
+  return best;
 }
 
 // Jumps the catalog view to a specific product (used by clickable bundle
@@ -971,19 +1005,24 @@ function exportPdf(model) {
   const heroImg = SITE_CONTENT.models[model].img;
   const prods = PRODUCTS.filter((p) => p.model === 'both' || p.model === model);
   const bnds = BUNDLES.filter((b) => b.model === model);
+  const issueDate = new Date().toLocaleDateString('he-IL', { year: 'numeric', month: 'long', day: 'numeric' });
 
   const prodCards = prods.map((p) => {
     const img = model === 'starray' ? p.img_sr : p.img_ex;
+    const cat = CATS[p.cat] || { label: p.cat, color: '#9aa0b2' };
     const hasDiscount = p.discount && p.discount > 0;
     const finalPrice = hasDiscount ? Math.round(p.price * (1 - p.discount / 100)) : p.price;
     return `
     <div class="pv-card">
-      <div class="pv-img">${img ? `<img src="${img}">` : ''}</div>
+      <div class="pv-img">
+        <span class="pv-cat-tag" style="background:${cat.color}">${escapeHtml(cat.label)}</span>
+        ${img ? `<img src="${img}">` : ''}
+      </div>
       <div class="pv-body">
         <h4>${escapeHtml(p.name)}</h4>
         <div class="pv-desc">${escapeHtml(p.desc || '')}</div>
         <div class="pv-foot">
-          <span>
+          <span class="pv-price-wrap">
             ${hasDiscount ? `<span class="pv-oldprice">${fmtPrice(p.price)}</span>` : ''}
             <span class="pv-price">${fmtPrice(finalPrice)}</span>
           </span>
@@ -995,17 +1034,21 @@ function exportPdf(model) {
 
   const bundleCards = bnds.map((b) => {
     const save = b.old_price && b.old_price > b.price ? Math.round(100 * (b.old_price - b.price) / b.old_price) : null;
+    const imgBlock = b.img ? `<div class="pv-bundle-img"><img src="${b.img}"></div>` : '';
     return `
     <div class="pv-bundle">
-      <h4>${escapeHtml(b.name)}</h4>
-      <div class="pv-items">${b.items.map(escapeHtml).join(' &middot; ')}</div>
-      <div class="pv-bfoot">
-        <span>
-          ${b.old_price && save ? `<span class="pv-oldprice">${fmtPrice(b.old_price)}</span>` : ''}
-          <span class="pv-price">${fmtPrice(b.price)}</span>
-          ${save ? ` <span style="font-size:8.5px; color:#0f8a4d; font-weight:800;">(חיסכון ${save}%)</span>` : ''}
-        </span>
-        <span class="pv-sku">${escapeHtml(b.code)}</span>
+      ${imgBlock}
+      <div class="pv-bundle-body">
+        <h4>${escapeHtml(b.name)}</h4>
+        <ul class="pv-items">${b.items.map((i) => `<li>${escapeHtml(i)}</li>`).join('')}</ul>
+        <div class="pv-bfoot">
+          <span class="pv-price-wrap" style="flex-direction:row; align-items:baseline; gap:2mm;">
+            ${b.old_price && save ? `<span class="pv-oldprice">${fmtPrice(b.old_price)}</span>` : ''}
+            <span class="pv-price">${fmtPrice(b.price)}</span>
+            ${save ? `<span class="pv-save">חיסכון ${save}%</span>` : ''}
+          </span>
+          <span class="pv-sku">${escapeHtml(b.code)}</span>
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -1016,17 +1059,23 @@ function exportPdf(model) {
       <div class="pv-brand">GEELY</div>
       ${heroImg ? `<img src="${heroImg}">` : ''}
       <h1>${escapeHtml(modelName)}</h1>
-      <div class="pv-sub">קטלוג אביזרים וחבילות</div>
+      <div class="pv-sub">קטלוג אביזרים וחבילות רשמי</div>
+      <div class="pv-cover-rule"></div>
+      <div class="pv-cover-date">הופק בתאריך ${escapeHtml(issueDate)}</div>
     </div>
     <div class="pv-section-title">אביזרים &mdash; ${escapeHtml(modelName)}</div>
     <div class="pv-grid">${prodCards}</div>
     ${bnds.length ? `
       <div class="pv-section-title" style="page-break-before:always;">חבילות &mdash; ${escapeHtml(modelName)}</div>
-      <div class="pv-grid" style="grid-template-columns:repeat(2, 1fr);">${bundleCards}</div>
+      <div class="pv-grid pv-grid-bundles">${bundleCards}</div>
     ` : ''}
     <div class="pv-footer">
       ${escapeHtml(SITE_CONTENT.footer1)}<br>${escapeHtml(SITE_CONTENT.footer2)}<br>
       * המחירים עבור התוספות כפופים למחיר המחירון העדכני של חברתנו במועד תשלום התוספות
+    </div>
+    <div class="pv-page-footer">
+      <span>GEELY &middot; קטלוג אביזרים רשמי</span>
+      <span>${escapeHtml(issueDate)}</span>
     </div>
   `;
 
