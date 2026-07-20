@@ -24,8 +24,28 @@
 
   <a href="#catalog" class="skip-link">דילוג לתוכן הראשי</a>
 
-  <!-- Loading screen: shown until data finishes loading from Supabase -->
-  <div class="app-loading" id="appLoading" role="status" aria-live="polite">
+  <!--
+    Site access gate: asks for a simple code before showing the catalog.
+    IMPORTANT — this is NOT real security. It only hides the page from
+    casual visitors / search engines; it does not protect the underlying
+    data (see README, section "שער כניסה לאתר"). Real protection for
+    writing/editing/deleting data is still the Supabase Auth + RLS setup.
+  -->
+  <div class="access-gate" id="accessGate" role="dialog" aria-modal="true" aria-labelledby="accessGateTitle">
+    <div class="access-gate-card">
+      <div class="grid-logo"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <h1 id="accessGateTitle">כניסה לקטלוג</h1>
+      <p>הזינו את קוד הגישה שקיבלתם כדי להמשיך</p>
+      <form id="accessGateForm" novalidate>
+        <label for="accessGateInput" class="visually-hidden">קוד גישה</label>
+        <input type="password" id="accessGateInput" inputmode="numeric" autocomplete="off" placeholder="קוד גישה" required>
+        <div class="login-error" id="accessGateError" role="alert"></div>
+        <button type="submit" class="btn primary" style="width:100%;">כניסה</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="app-loading" id="appLoading" role="status" aria-live="polite" hidden>
     <div class="spinner" aria-hidden="true"></div>
     <p>טוען את הקטלוג&hellip;</p>
   </div>
@@ -295,6 +315,14 @@
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="bundleModalTitle">
       <h2 id="bundleModalTitle">הוספת חבילה</h2>
       <input type="hidden" id="b_originalCode">
+      <div class="field">
+        <label for="b_imgFile">תמונת חבילה (אופציונלי)</label>
+        <label class="img-upload" for="b_imgFile">
+          <img id="b_imgPreview" src="" style="display:none;" alt="">
+          <span id="b_imgLabel">לחצו כדי להעלות תמונה (אופציונלי)</span>
+          <input type="file" id="b_imgFile" accept="image/*" style="display:none;">
+        </label>
+      </div>
       <div class="field">
         <label for="b_name">שם החבילה</label>
         <input type="text" id="b_name" placeholder="לדוגמה: STARRAY PLUS PACK" maxlength="120">

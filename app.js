@@ -96,11 +96,11 @@ function fromDbProduct(row) {
 function toDbBundle(b) {
   return {
     code: b.code, name: b.name, price: b.price, old_price: b.old_price || null,
-    model: b.model, items: b.items,
+    model: b.model, items: b.items, img: b.img || null,
   };
 }
 function fromDbBundle(row) {
-  return { code: row.code, name: row.name, price: row.price, old_price: row.old_price, model: row.model, items: row.items || [] };
+  return { code: row.code, name: row.name, price: row.price, old_price: row.old_price, model: row.model, items: row.items || [], img: row.img || null };
 }
 
 // ---------------- Validation ----------------
@@ -146,9 +146,10 @@ function validateBundle(b) {
   if (old_price !== null && (Number.isNaN(old_price) || old_price < 0)) errors.push('מחיר קודם לא תקין');
   if (!model) errors.push('דגם לא תקין');
   if (!items.length) errors.push('יש להוסיף לפחות אביזר אחד לחבילה');
+  if (!isSafeImageSrc(b.img)) errors.push('תמונה לא תקינה');
 
   if (errors.length) return { ok: false, errors };
-  return { ok: true, value: { code, name, price, old_price, model, items } };
+  return { ok: true, value: { code, name, price, old_price, model, items, img: b.img || null } };
 }
 
 // ---------------- Load seed shape from local data.json ----------------
@@ -298,6 +299,33 @@ function buildChips() {
 function productImg(p) { return state.model === 'starray' ? p.img_sr : p.img_ex; }
 function matchesModel(p) { return p.model === 'both' || p.model === state.model; }
 
+// Best-effort match of a free-text bundle item line to an actual product,
+// so we can show its live price on hover and link to it. If nothing
+// matches (e.g. the line describes a service, not a catalog item) the
+// item is rendered as plain text — never a broken/misleading link.
+function findMatchingProduct(itemText, bundleModel) {
+  const norm = (s) => String(s).trim().toLowerCase();
+  const target = norm(itemText);
+  if (!target) return null;
+  return PRODUCTS.find((p) => (p.model === 'both' || p.model === bundleModel) && norm(p.name) === target) || null;
+}
+
+// Jumps the catalog view to a specific product (used by clickable bundle
+// items) and opens its lightbox so the user sees the accessory itself.
+function goToProduct(code) {
+  const p = PRODUCTS.find((x) => x.code === code);
+  if (!p) return;
+  state.model = (p.model === 'both') ? state.model : p.model;
+  state.cat = KNOWN_CATS.includes(p.cat) ? p.cat : 'all';
+  state.q = p.code;
+  document.getElementById('searchInput').value = p.code;
+  applyHero();
+  buildChips();
+  syncStateToUrl();
+  render();
+  openLightbox(p.code);
+}
+
 function render() {
   const grid = document.getElementById('grid');
   const q = state.q.trim().toLowerCase();
@@ -320,12 +348,20 @@ function render() {
           <button class="icon-btn edit" data-bedit="${escapeHtml(b.code)}" aria-label="עריכת חבילה ${escapeHtml(b.name)}">&#9998;&#65039;</button>
           <button class="icon-btn del" data-bdel="${escapeHtml(b.code)}" aria-label="מחיקת חבילה ${escapeHtml(b.name)}">&#128465;&#65039;</button>
         </div>` : '';
+      const imgBlock = b.img ? `<div class="bundle-img-wrap"><img src="${b.img}" alt="${escapeHtml(b.name)}" loading="lazy" decoding="async"></div>` : '';
+      const itemsHtml = b.items.map((i) => {
+        const match = findMatchingProduct(i, b.model);
+        if (!match) return `<span>${escapeHtml(i)}</span>`;
+        const mFinal = match.discount ? Math.round(match.price * (1 - match.discount / 100)) : match.price;
+        return `<button type="button" class="bundle-item-link" data-item-code="${escapeHtml(match.code)}" aria-label="${escapeHtml(i)} — צפייה באביזר, מחיר ${escapeHtml(String(mFinal))} שקל">${escapeHtml(i)}<span class="bundle-item-tooltip" aria-hidden="true">${fmtPrice(mFinal)}</span></button>`;
+      }).join('');
       return `
       <div class="bundle-card ${adminMode ? 'admin-mode' : ''}" style="position:relative; --i:${Math.min(bi, 12)};">
         ${adminOverlay}
+        ${imgBlock}
         <div class="tier">${escapeHtml(HERO_NAME[b.model])} &middot; חבילה</div>
         <h3>${escapeHtml(b.name)}</h3>
-        <div class="bundle-items">${b.items.map((i) => `<span>${escapeHtml(i)}</span>`).join('')}</div>
+        <div class="bundle-items">${itemsHtml}</div>
         <div class="bundle-price-row">
           ${b.old_price && save ? `<span class="bundle-old-price">${fmtPrice(b.old_price)}</span>` : ''}
           <div class="bundle-final-row">
@@ -336,6 +372,11 @@ function render() {
         </div>
       </div>`;
     }).join('');
+
+    grid.querySelectorAll('.bundle-item-link').forEach((el) => el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      goToProduct(el.dataset.itemCode);
+    }));
 
     if (adminMode) {
       grid.querySelectorAll('[data-bedit]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); openBundleModal(b.dataset.bedit); }));
@@ -714,6 +755,8 @@ document.getElementById('deleteBtn').addEventListener('click', () => {
 });
 
 // ---------------- Bundle CRUD ----------------
+let pendingBundleImageData = null;
+
 function openBundleModal(code) {
   const isEdit = !!code;
   const b = isEdit ? BUNDLES.find((x) => x.code === code) : null;
@@ -726,16 +769,40 @@ function openBundleModal(code) {
   document.getElementById('b_price').value = b ? b.price : '';
   document.getElementById('b_items').value = b ? b.items.join('\n') : '';
   document.getElementById('bundleDeleteBtn').style.display = isEdit ? 'inline-block' : 'none';
+
+  pendingBundleImageData = null;
+  const bPreview = document.getElementById('b_imgPreview');
+  const bLabel = document.getElementById('b_imgLabel');
+  if (b && b.img) { bPreview.src = b.img; bPreview.style.display = 'block'; bLabel.textContent = 'לחצו כדי להחליף תמונה'; }
+  else { bPreview.style.display = 'none'; bPreview.src = ''; bLabel.textContent = 'לחצו כדי להעלות תמונה (אופציונלי)'; }
+
   openOverlay('bundleModalOverlay', '#b_name');
 }
-function closeBundleModal() { closeOverlay('bundleModalOverlay'); }
+function closeBundleModal() { closeOverlay('bundleModalOverlay'); pendingBundleImageData = null; }
 
 document.getElementById('bundleCancelBtn').addEventListener('click', closeBundleModal);
 document.getElementById('bundleModalOverlay').addEventListener('click', (e) => { if (e.target.id === 'bundleModalOverlay') closeBundleModal(); });
 
+document.getElementById('b_imgFile').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { alert('יש לבחור קובץ תמונה בלבד'); e.target.value = ''; return; }
+  if (file.size > MAX_IMAGE_BYTES) { alert('התמונה גדולה מדי (מקסימום 4MB)'); e.target.value = ''; return; }
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    pendingBundleImageData = ev.target.result;
+    const preview = document.getElementById('b_imgPreview');
+    preview.src = pendingBundleImageData;
+    preview.style.display = 'block';
+    document.getElementById('b_imgLabel').textContent = 'לחצו כדי להחליף תמונה';
+  };
+  reader.readAsDataURL(file);
+});
+
 document.getElementById('bundleSaveBtn').addEventListener('click', async () => {
   if (!adminMode) return;
   const originalCode = document.getElementById('b_originalCode').value;
+  const existingBundle = originalCode ? BUNDLES.find((x) => x.code === originalCode) : null;
   const draft = {
     code: document.getElementById('b_code').value.trim(),
     name: document.getElementById('b_name').value.trim(),
@@ -743,6 +810,7 @@ document.getElementById('bundleSaveBtn').addEventListener('click', async () => {
     old_price: document.getElementById('b_oldprice').value ? parseFloat(document.getElementById('b_oldprice').value) : null,
     price: parseFloat(document.getElementById('b_price').value),
     items: document.getElementById('b_items').value.split('\n').map((s) => s.trim()).filter(Boolean),
+    img: pendingBundleImageData || (existingBundle ? existingBundle.img : null),
   };
 
   const result = validateBundle(draft);
@@ -858,7 +926,8 @@ document.getElementById('importFile').addEventListener('change', (e) => {
       return;
     }
 
-    const summary = `יובאו ${validProducts.length}/${rawProducts.length} אביזרים ו-${validBundles.length}/${rawBundles.length} חבילות תקינים.`
+    const summary = `יובאו ${validProducts.length}/${rawProducts.length} אביזרים ו-${validBundles.length}/${rawBundles.length} חבילות תקינים.\n`
+      + `הייבוא מוסיף/מעדכן לפי מק"ט — לא מוחק אביזרים קיימים שלא נמצאים בקובץ.`
       + (productErrors.length || bundleErrors.length
         ? `\n\nנפסלו:\n${productErrors.concat(bundleErrors).slice(0, 15).join('\n')}`
         : '')
@@ -866,11 +935,25 @@ document.getElementById('importFile').addEventListener('change', (e) => {
     if (!confirm(summary)) { e.target.value = ''; return; }
 
     try {
-      PRODUCTS = validProducts;
-      BUNDLES = validBundles;
+      // Merge by code: update existing items, add new ones. Existing
+      // accessories/bundles that are NOT in the imported file are left
+      // untouched — importing never deletes anything.
+      validProducts.forEach((p) => {
+        const idx = PRODUCTS.findIndex((x) => x.code === p.code);
+        if (idx > -1) PRODUCTS[idx] = p; else PRODUCTS.push(p);
+      });
+      validBundles.forEach((b) => {
+        const idx = BUNDLES.findIndex((x) => x.code === b.code);
+        if (idx > -1) BUNDLES[idx] = b; else BUNDLES.push(b);
+      });
       render();
-      await syncProductsToSupabase();
-      await syncBundlesToSupabase();
+
+      const { error: pErr } = await sb.from('accessories').upsert(validProducts.map(toDbProduct));
+      if (pErr) throw pErr;
+      if (validBundles.length) {
+        const { error: bErr } = await sb.from('bundles').upsert(validBundles.map(toDbBundle));
+        if (bErr) throw bErr;
+      }
       showToast('✓ הנתונים יובאו ונשמרו במסד הנתונים');
     } catch (err) {
       console.error(err);
@@ -880,23 +963,6 @@ document.getElementById('importFile').addEventListener('change', (e) => {
   reader.readAsText(file);
   e.target.value = '';
 });
-
-async function syncProductsToSupabase() {
-  const { error: delErr } = await sb.from('accessories').delete().neq('code', '__none__');
-  if (delErr) throw delErr;
-  if (PRODUCTS.length) {
-    const { error } = await sb.from('accessories').insert(PRODUCTS.map(toDbProduct));
-    if (error) throw error;
-  }
-}
-async function syncBundlesToSupabase() {
-  const { error: delErr } = await sb.from('bundles').delete().neq('code', '__none__');
-  if (delErr) throw delErr;
-  if (BUNDLES.length) {
-    const { error } = await sb.from('bundles').insert(BUNDLES.map(toDbBundle));
-    if (error) throw error;
-  }
-}
 
 // ---------------- PDF export (via print) ----------------
 function exportPdf(model) {
@@ -1089,4 +1155,49 @@ sb.auth.onAuthStateChange((_event, session) => {
   updateAdminUi();
 });
 
-init();
+// ---------------- Site access gate ----------------
+// This only controls whether the *page UI* is shown in this browser. It is
+// a soft deterrent (keeps casual visitors / search engines out), NOT real
+// access control: the code lives in this public JS file, and the catalog
+// data itself is still readable directly from Supabase by anyone with the
+// project URL (by design — see supabase-setup.sql). Do not rely on this
+// for anything that must stay confidential. Real protection (blocking
+// writes/edits/deletes) is the Supabase Auth + RLS setup, which is
+// unaffected by this gate.
+const SITE_ACCESS_CODE = '2514';
+const ACCESS_STORAGE_KEY = 'geely_catalog_access_ok';
+
+function showAccessGate() {
+  document.getElementById('appLoading').hidden = true;
+  document.getElementById('accessGate').hidden = false;
+  document.getElementById('accessGateInput').focus();
+}
+function passAccessGate() {
+  document.getElementById('accessGate').hidden = true;
+  init();
+}
+
+document.getElementById('accessGateForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const val = document.getElementById('accessGateInput').value.trim();
+  const errEl = document.getElementById('accessGateError');
+  if (val === SITE_ACCESS_CODE) {
+    try { localStorage.setItem(ACCESS_STORAGE_KEY, '1'); } catch { /* localStorage may be unavailable; not critical */ }
+    errEl.textContent = '';
+    passAccessGate();
+  } else {
+    errEl.textContent = 'קוד שגוי, נסו שוב';
+    document.getElementById('accessGateInput').value = '';
+    document.getElementById('accessGateInput').focus();
+  }
+});
+
+let alreadyHasAccess = false;
+try { alreadyHasAccess = localStorage.getItem(ACCESS_STORAGE_KEY) === '1'; } catch { /* ignore */ }
+
+if (alreadyHasAccess) {
+  document.getElementById('accessGate').hidden = true;
+  init();
+} else {
+  showAccessGate();
+}

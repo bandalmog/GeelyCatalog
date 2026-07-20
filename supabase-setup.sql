@@ -34,8 +34,13 @@ create table if not exists bundles (
   price numeric not null,
   old_price numeric,
   model text not null,
-  items jsonb not null default '[]'
+  items jsonb not null default '[]',
+  img text
 );
+
+-- If the "bundles" table already existed from before (no "img" column yet),
+-- this adds it without touching any existing rows.
+alter table bundles add column if not exists img text;
 
 create table if not exists site_content (
   key text primary key,
