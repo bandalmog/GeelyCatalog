@@ -1148,18 +1148,8 @@ function exportPdf(model) {
     ` : ''}
 
     <div class="pv-footer">
+      ${escapeHtml(SITE_CONTENT.footer1)}<br>${escapeHtml(SITE_CONTENT.footer2)}<br>
       * המחירים עבור התוספות כפופים למחיר המחירון העדכני של חברתנו במועד תשלום התוספות
-    </div>
-
-    <div class="pv-closing">
-      <div class="pv-logo"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-      <h2>תודה שבחרתם ב-GEELY</h2>
-      <p>לשאלות נוספות או לתיאום התקנה, נשמח לעמוד לרשותכם</p>
-      <div class="pv-closing-card">
-        <div>${escapeHtml(SITE_CONTENT.footer1)}</div>
-        <div>${escapeHtml(SITE_CONTENT.footer2)}</div>
-      </div>
-      <div class="pv-closing-rule"></div>
     </div>
 
     <div class="pv-page-footer">
