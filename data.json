@@ -1,0 +1,571 @@
+{
+ "products": [
+  {
+   "code": "GE00700000",
+   "name": "מטען נייד לשקע ביתי (כבל סבתא)",
+   "price": 1500,
+   "model": "both",
+   "cat": "charging",
+   "img_sr": "images/GE00700000-sr.webp",
+   "img_ex": "images/GE00700000-ex.webp",
+   "desc": "טעינה נוחה משקע ביתי רגיל, כולל תיק נשיאה"
+  },
+  {
+   "code": "GE002V2V",
+   "name": "מתאם V2V",
+   "price": 839,
+   "model": "both",
+   "cat": "charging",
+   "img_sr": "images/GE002V2V-sr.webp",
+   "img_ex": "images/GE002V2V-ex.webp",
+   "desc": "העברת חשמל בין שני רכבים חשמליים"
+  },
+  {
+   "code": "EX-092",
+   "name": "מתאם V2L",
+   "price": 500,
+   "model": "both",
+   "cat": "charging",
+   "img_sr": "images/EX-092-sr.webp",
+   "img_ex": "images/EX-092-ex.webp",
+   "desc": "הפעלת מכשירי חשמל מהרכב (Vehicle to Load)"
+  },
+  {
+   "code": "GE001-00201",
+   "name": "כבל טעינה ציבורי חד פאזי 32A + תיק",
+   "price": 1500,
+   "model": "both",
+   "cat": "charging",
+   "img_sr": "images/GE001-00201-sr.webp",
+   "img_ex": "images/GE001-00201-ex.webp",
+   "desc": "כבל לטעינה בעמדות ציבוריות, חד פאזי 32 אמפר, כולל תיק נשיאה"
+  },
+  {
+   "code": "EX001-00094",
+   "name": "כבל טעינה ציבורי תלת פאזי 16A",
+   "price": 1200,
+   "model": "both",
+   "cat": "charging",
+   "img_sr": "images/EX001-00094-sr.webp",
+   "img_ex": "images/EX001-00094-ex.webp",
+   "desc": "כבל לטעינה בעמדות ציבוריות, תלת פאזי 16 אמפר"
+  },
+  {
+   "code": "GE001-00135",
+   "name": "שובר לעמדת טעינה PLUGO 22kW",
+   "price": 2890,
+   "model": "both",
+   "cat": "charging",
+   "img_sr": "images/GE001-00135-sr.webp",
+   "img_ex": "images/GE001-00135-ex.webp",
+   "desc": "שובר להתקנת עמדת טעינה ביתית PLUGO בהספק 22 קילוואט"
+  },
+  {
+   "code": "GEL-150",
+   "name": "שובר לעמדת טעינה תדיראן 22kW",
+   "price": 2890,
+   "model": "both",
+   "cat": "charging",
+   "img_sr": "images/GEL-150-sr.webp",
+   "img_ex": "images/GEL-150-ex.webp",
+   "desc": "שובר להתקנת עמדת טעינה ביתית תדיראן בהספק 22 קילוואט"
+  },
+  {
+   "code": "GE-142",
+   "name": "Geely Connect Plus",
+   "price": 1390,
+   "model": "both",
+   "cat": "multimedia",
+   "img_sr": "images/GE-142-sr.webp",
+   "img_ex": "images/GE-142-ex.webp",
+   "desc": "איתוראן שגרות + ערבות הדדית, שליטה ומעקב מהאפליקציה"
+  },
+  {
+   "code": "GE-005",
+   "name": "זוג מסכי אנדרואיד 10\" למשענות ראש",
+   "price": 4650,
+   "model": "both",
+   "cat": "multimedia",
+   "img_sr": "images/GE-005-sr.webp",
+   "img_ex": "images/GE-005-ex.webp",
+   "desc": "מערכת בידור לנוסעים האחוריים"
+  },
+  {
+   "code": "EX-056",
+   "name": "איתוראן 7002 פעיל + לוח מקשים + יחידת PAL",
+   "price": 3490,
+   "model": "both",
+   "cat": "multimedia",
+   "img_sr": "images/EX-056-sr.webp",
+   "img_ex": "images/EX-056-ex.webp",
+   "desc": "מערכת איתור וסטטוס פעיל, ללא עלוקה"
+  },
+  {
+   "code": "GE-1098",
+   "name": "מצלמת DVR קדמית",
+   "price": 799,
+   "model": "both",
+   "cat": "multimedia",
+   "img_sr": "images/GE-1098-sr.webp",
+   "img_ex": "images/GE-1098-ex.webp",
+   "desc": "כוללת כרטיס זיכרון 32 ג'יגה"
+  },
+  {
+   "code": "GE001-00087",
+   "name": "מצלמת DVR קדמית ואחורית",
+   "price": 999,
+   "model": "both",
+   "cat": "multimedia",
+   "img_sr": "images/GE001-00087-sr.webp",
+   "img_ex": "images/GE001-00087-ex.webp",
+   "desc": "כוללת כרטיס זיכרון 32 ג'יגה"
+  },
+  {
+   "code": "SR-002",
+   "name": "סט שטיחי גומי 3D Full Protection",
+   "price": 590,
+   "model": "starray",
+   "cat": "protection",
+   "img_sr": "images/SR-002-sr.webp",
+   "img_ex": null,
+   "desc": "הגנה מלאה לרצפת הרכב, מותאם ל-STARRAY EM-i"
+  },
+  {
+   "code": "EX-001",
+   "name": "סט שטיחי גומי שלושה חלקים EX5",
+   "price": 590,
+   "model": "ex5",
+   "cat": "protection",
+   "img_sr": null,
+   "img_ex": "images/EX-001-ex.webp",
+   "desc": "הגנה מלאה לרצפת הרכב, מותאם ל-EX5"
+  },
+  {
+   "code": "SR001-0001",
+   "name": "סט שטיחי לבד (3 יח')",
+   "price": 77,
+   "model": "starray",
+   "cat": "protection",
+   "img_sr": null,
+   "img_ex": null,
+   "desc": "שטיחי לבד מקוריים ל-STARRAY EM-i"
+  },
+  {
+   "code": "EX001-00008",
+   "name": "סט שטיחי לבד (3 יח')",
+   "price": 77,
+   "model": "ex5",
+   "cat": "protection",
+   "img_sr": null,
+   "img_ex": null,
+   "desc": "שטיחי לבד מקוריים ל-EX5"
+  },
+  {
+   "code": "SR001-00017",
+   "name": "חבילת גלגל ספייר STARRAY EM-i",
+   "price": 1989,
+   "model": "starray",
+   "cat": "protection",
+   "img_sr": "images/SR001-00017-sr.webp",
+   "img_ex": null,
+   "desc": "כולל גלגל, ג'ק ומגבה"
+  },
+  {
+   "code": "EX-189",
+   "name": "חבילת גלגל ספייר EX5",
+   "price": 1890,
+   "model": "ex5",
+   "cat": "protection",
+   "img_sr": null,
+   "img_ex": "images/EX-189-ex.webp",
+   "desc": "כולל גלגל, ג'ק ומגבה - לא מותקן בשילוב עם קופסת אחסון"
+  },
+  {
+   "code": "EX-004",
+   "name": "אמבטיה לתא מטען",
+   "price": 390,
+   "model": "ex5",
+   "cat": "protection",
+   "img_sr": null,
+   "img_ex": "images/EX-004-ex.webp",
+   "desc": "מגן תא מטען קשיח, מותאם ל-EX5"
+  },
+  {
+   "code": "EX-075",
+   "name": "אמבטיה תחתונה לתא מטען",
+   "price": 290,
+   "model": "both",
+   "cat": "protection",
+   "img_sr": null,
+   "img_ex": "images/EX-075-ex.webp",
+   "desc": "מגן תחתון לתא המטען"
+  },
+  {
+   "code": "EX-072",
+   "name": "קופסת אחסון לתא מטען",
+   "price": 500,
+   "model": "ex5",
+   "cat": "protection",
+   "img_sr": null,
+   "img_ex": "images/EX-072-ex.webp",
+   "desc": "ארגון ואחסון בתא המטען - לא מותקן בשילוב עם גלגל ספייר"
+  },
+  {
+   "code": "EX001-00079",
+   "name": "זוג קופסאות אחסון EX5",
+   "price": 129,
+   "model": "ex5",
+   "cat": "protection",
+   "img_sr": null,
+   "img_ex": null,
+   "desc": "קופסאות אחסון נוספות לתא המטען"
+  },
+  {
+   "code": "EX-002",
+   "name": "סט וילונות מגנטיים",
+   "price": 490,
+   "model": "both",
+   "cat": "protection",
+   "img_sr": "images/EX-002-sr.webp",
+   "img_ex": "images/EX-002-ex.webp",
+   "desc": "הגנה מהשמש להתקנה מגנטית על חלונות הרכב"
+  },
+  {
+   "code": "EX001-00061",
+   "name": "מגני רוח",
+   "price": 389,
+   "model": "both",
+   "cat": "protection",
+   "img_sr": "images/EX001-00061-sr.webp",
+   "img_ex": "images/EX001-00061-ex.webp",
+   "desc": "מגיני רוח לחלונות קדמיים"
+  },
+  {
+   "code": "EX-074",
+   "name": "תאורה לתא מטען",
+   "price": 490,
+   "model": "both",
+   "cat": "protection",
+   "img_sr": "images/EX-074-sr.webp",
+   "img_ex": "images/EX-074-ex.webp",
+   "desc": "תאורת LED לתא המטען"
+  },
+  {
+   "code": "SR-0002",
+   "name": "פס תאורה קדמית STARLED",
+   "price": 1190,
+   "model": "starray",
+   "cat": "protection",
+   "img_sr": "images/SR-0002-sr.webp",
+   "img_ex": null,
+   "desc": "פס לד קדמי מעוצב ל-STARRAY EM-i"
+  },
+  {
+   "code": "EX001-00078",
+   "name": "מוטות רוחב",
+   "price": 1290,
+   "model": "both",
+   "cat": "protection",
+   "img_sr": "images/EX001-00078-sr.webp",
+   "img_ex": "images/EX001-00078-ex.webp",
+   "desc": "מוטות גג לנשיאת ציוד"
+  },
+  {
+   "code": "EX001-00009",
+   "name": "מסגרת ללוחית רישוי",
+   "price": 16,
+   "model": "both",
+   "cat": "styling",
+   "img_sr": null,
+   "img_ex": null,
+   "desc": ""
+  },
+  {
+   "code": "EX001-00014",
+   "name": "תיק מסמכים לרכב",
+   "price": 11,
+   "model": "both",
+   "cat": "styling",
+   "img_sr": null,
+   "img_ex": null,
+   "desc": ""
+  },
+  {
+   "code": "EX001-00019",
+   "name": "תיק לכבל טעינה",
+   "price": 13,
+   "model": "both",
+   "cat": "styling",
+   "img_sr": null,
+   "img_ex": null,
+   "desc": ""
+  },
+  {
+   "code": "GE00100030",
+   "name": "מדבקת שירותי דרך 24/7",
+   "price": 1,
+   "model": "both",
+   "cat": "styling",
+   "img_sr": null,
+   "img_ex": null,
+   "desc": ""
+  },
+  {
+   "code": "GEO02-101",
+   "name": "מדבקת מתח גבוה",
+   "price": 1,
+   "model": "both",
+   "cat": "styling",
+   "img_sr": null,
+   "img_ex": null,
+   "desc": ""
+  },
+  {
+   "code": "GEO01-101",
+   "name": "מדבקת תקע חשמלי (כהה)",
+   "price": 3,
+   "model": "both",
+   "cat": "styling",
+   "img_sr": null,
+   "img_ex": null,
+   "desc": ""
+  },
+  {
+   "code": "EX001-00013",
+   "name": "מדבקת תקע חשמלי (בהיר)",
+   "price": 3,
+   "model": "both",
+   "cat": "styling",
+   "img_sr": null,
+   "img_ex": null,
+   "desc": ""
+  },
+  {
+   "code": "EX-022",
+   "name": "טרייד אין במחיר מחירון",
+   "price": 6000,
+   "model": "both",
+   "cat": "services",
+   "img_sr": "images/EX-022-sr.webp",
+   "img_ex": "images/EX-022-ex.webp",
+   "desc": "שירות טרייד-אין דרך Geo Mobility"
+  }
+ ],
+ "bundles": [
+  {
+   "code": "SRP-012",
+   "model": "starray",
+   "name": "STARLED PACK",
+   "price": 1470,
+   "old_price": 1646,
+   "items": [
+    "פס תאורה קדמית STARLED",
+    "תאורה לתא מטען"
+   ]
+  },
+  {
+   "code": "SRP-011",
+   "model": "starray",
+   "name": "STARRAY CHARGE PACK",
+   "price": 4777,
+   "old_price": 5350,
+   "items": [
+    "שובר טעינה תדיראן 22kW",
+    "מתאם V2L",
+    "מתאם V2V",
+    "כבל טעינה ציבורי תלת פאזי + תיק"
+   ]
+  },
+  {
+   "code": "SR-019",
+   "model": "starray",
+   "name": "STARRAY PLUS PACK",
+   "price": 3650,
+   "old_price": 4015,
+   "items": [
+    "Geely Connect Plus",
+    "פס תאורה STARLED",
+    "סט שטיחי גומי",
+    "תאורה לתא מטען",
+    "אמבטיה לתא מטען"
+   ]
+  },
+  {
+   "code": "SR-023",
+   "model": "starray",
+   "name": "BEST SELLER PACK",
+   "price": 4800,
+   "old_price": 5280,
+   "items": [
+    "חבילת גלגל ספייר",
+    "מצלמת DVR קדמית ואחורית",
+    "מגני רוח",
+    "סט שטיחי גומי",
+    "מטען נייד לשקע ביתי"
+   ]
+  },
+  {
+   "code": "SR-018",
+   "model": "starray",
+   "name": "STARRAY PRO PACK",
+   "price": 4550,
+   "old_price": 5005,
+   "items": [
+    "Geely Connect Plus",
+    "פס תאורה STARLED",
+    "חבילת גלגל ספייר",
+    "סט וילונות מגנטיים"
+   ]
+  },
+  {
+   "code": "SR-021",
+   "model": "starray",
+   "name": "STARRAY COMPLETE PACK",
+   "price": 4550,
+   "old_price": 5005,
+   "items": [
+    "חבילת גלגל ספייר",
+    "מצלמת DVR קדמית ואחורית",
+    "פס תאורה STARLED",
+    "אמבטיה לתא מטען",
+    "סט וילונות מגנטיים"
+   ]
+  },
+  {
+   "code": "SR-022",
+   "model": "starray",
+   "name": "STARRAY VIP PACK",
+   "price": 5970,
+   "old_price": null,
+   "items": [
+    "חבילת גלגל ספייר",
+    "מצלמת DVR קדמית ואחורית",
+    "מגני רוח",
+    "פס תאורה STARLED",
+    "סט שטיחי גומי",
+    "אמבטיה לתא מטען",
+    "מטען נייד לשקע ביתי"
+   ]
+  },
+  {
+   "code": "EX-083",
+   "model": "ex5",
+   "name": "EX SAFETY PACK",
+   "price": 3800,
+   "old_price": 4218,
+   "items": [
+    "חבילת גלגל ספייר",
+    "Geely Connect Plus",
+    "מצלמת DVR קדמית ואחורית"
+   ]
+  },
+  {
+   "code": "EX-081",
+   "model": "ex5",
+   "name": "EX STORAGE PACK",
+   "price": 1150,
+   "old_price": 1288,
+   "items": [
+    "קופסת אחסון לתא מטען",
+    "אמבטיה תחתונה",
+    "זוג קופסאות אחסון",
+    "אמבטיה לתא מטען"
+   ]
+  },
+  {
+   "code": "EX-089",
+   "model": "ex5",
+   "name": "EX PLUS PACK",
+   "price": 3140,
+   "old_price": 3450,
+   "items": [
+    "Geely Connect Plus",
+    "סט שטיחי גומי 3 חלקים",
+    "אמבטיה לתא מטען",
+    "מתאם V2L",
+    "זוג קופסאות אחסון",
+    "תאורה לתא מטען"
+   ]
+  },
+  {
+   "code": "EX-093",
+   "model": "ex5",
+   "name": "BEST SELLER PACK",
+   "price": 4724,
+   "old_price": 5200,
+   "items": [
+    "חבילת גלגל ספייר",
+    "מצלמת DVR קדמית ואחורית",
+    "מגני רוח",
+    "סט שטיחי גומי",
+    "מטען נייד לשקע ביתי"
+   ]
+  },
+  {
+   "code": "EX-088",
+   "model": "ex5",
+   "name": "EX PLUS PACK 1",
+   "price": 3500,
+   "old_price": 3850,
+   "items": [
+    "Geely Connect Plus",
+    "חבילת גלגל ספייר",
+    "תאורה לתא מטען",
+    "זוג קופסאות אחסון"
+   ]
+  },
+  {
+   "code": "EX-091",
+   "model": "ex5",
+   "name": "EX FULL PACK",
+   "price": 4040,
+   "old_price": 4442,
+   "items": [
+    "סט שטיחי גומי 3 חלקים",
+    "מגני רוח",
+    "מצלמת DVR קדמית ואחורית",
+    "אמבטיה לתא מטען",
+    "מטען נייד לשקע ביתי + תיק",
+    "זוג קופסאות אחסון",
+    "תאורה לתא מטען"
+   ]
+  },
+  {
+   "code": "EX-090",
+   "model": "ex5",
+   "name": "EX TOTAL PACK",
+   "price": 5200,
+   "old_price": 5720,
+   "items": [
+    "חבילת גלגל ספייר EX5",
+    "תאורה לתא מטען",
+    "מגני רוח",
+    "מצלמת DVR קדמית ואחורית",
+    "אמבטיה לתא מטען",
+    "מטען נייד לשקע ביתי",
+    "זוג קופסאות אחסון"
+   ]
+  }
+ ],
+ "site_content": {
+  "eyebrow": "מחירון עדכני · כולל מע\"מ",
+  "footer1": "GEELY ישראל · המחירים כוללים מע\"מ כחוק · התמונות להמחשה בלבד",
+  "footer2": "*8133 · www.geely.co.il",
+  "splash": {
+   "eyebrow": "קטלוג אביזרים רשמי",
+   "title": "בחרו את הדגם שלכם",
+   "sub": "כל אביזר, לכל דגם — מותאם בדיוק לרכב שלך",
+   "cta": "לצפייה באביזרים ←"
+  },
+  "models": {
+   "starray": {
+    "img": "images/hero-starray.webp",
+    "text": "שדרוג, הגנה וטעינה — כל האביזרים הרשמיים ל-STARRAY EM-i, במקום אחד."
+   },
+   "ex5": {
+    "img": "images/hero-ex5.webp",
+    "text": "שדרוג, הגנה וטעינה — כל האביזרים הרשמיים ל-EX5, במקום אחד."
+   }
+  }
+ }
+}
