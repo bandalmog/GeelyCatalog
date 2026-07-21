@@ -1,579 +1,125 @@
+-- =========================================================================
+-- Geely Accessories Catalog — Supabase security setup
+--
+-- Run this once in the Supabase SQL editor (Project → SQL Editor → New
+-- query). It enables Row Level Security (RLS) on all three data tables
+-- and creates policies so that:
+--   * Anyone (the public catalog page) can READ accessories, bundles,
+--     and site_content.
+--   * Only a user explicitly listed in the "admins" table can
+--     INSERT / UPDATE / DELETE — not just anyone with a login.
+--
+-- This replaces the old hard-coded PIN ("8133") that lived in the page's
+-- JavaScript. That PIN never actually protected the database — anyone
+-- could open the browser console and call the Supabase client directly.
+-- Real protection has to live on the server side, which is what RLS does.
+-- =========================================================================
 
-  :root{
-    --bg: #f7f8fb;
-    --bg-soft: #eef0f6;
-    --surface: #ffffff;
-    --surface-2: #f2f4f9;
-    --line: #e4e7ef;
-    --text: #14161f;
-    --muted: #5a6072;
-    --muted-2: #9aa0b2;
-    --blue: #2f4bdd;
-    --purple: #7a2be0;
-    --pink: #e93a92;
-    --grad: linear-gradient(95deg, var(--pink) 0%, var(--blue) 55%, var(--purple) 100%);
-    --grad-soft: linear-gradient(95deg, rgba(233,58,146,.10) 0%, rgba(47,75,221,.10) 55%, rgba(122,43,224,.10) 100%);
-    --silver: #c7cbd4;
-    --radius: 18px;
-    --shadow-sm: 0 1px 3px rgba(20,22,31,.06), 0 4px 14px rgba(20,22,31,.05);
-    --shadow-md: 0 6px 24px rgba(20,22,31,.09);
-    --shadow-lg: 0 18px 50px rgba(47,75,221,.14);
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Heebo',sans-serif;-webkit-font-smoothing:antialiased;}
-  .mono{font-family:'JetBrains Mono',monospace;}
-  a{color:inherit;}
-  ::selection{background:var(--purple);color:#fff;}
+-- 1) Make sure the tables have the columns the app expects.
+--    (Skip / adjust if your tables already look like this.)
+create table if not exists accessories (
+  code text primary key,
+  name text not null,
+  price numeric not null,
+  discount numeric default 0,
+  model text not null,
+  cat text not null,
+  description text default '',
+  img_sr text,
+  img_ex text
+);
 
-  /* ---------- top bar ---------- */
-  .topbar{
-    position:sticky; top:0; z-index:50;
-    display:flex; align-items:center; justify-content:space-between;
-    padding:14px 28px; background:rgba(255,255,255,.82); backdrop-filter:blur(14px);
-    border-bottom:1px solid var(--line);
-  }
-  .brand{display:flex; align-items:center; gap:10px; font-weight:900; font-size:18px; letter-spacing:.5px;}
-  .brand .grid-logo{display:grid; grid-template-columns:repeat(3,7px); grid-template-rows:repeat(2,7px); gap:2px;}
-  .brand .grid-logo span{background:var(--text); display:block; border-radius:1px;}
-  .topbar nav{display:flex; gap:22px; font-size:14px; color:var(--muted);}
-  .topbar nav a{text-decoration:none; transition:color .2s;}
-  .topbar nav a:hover{color:var(--text);}
+create table if not exists bundles (
+  code text primary key,
+  name text not null,
+  price numeric not null,
+  old_price numeric,
+  model text not null,
+  items jsonb not null default '[]',
+  img text
+);
 
-  /* ---------- hero ---------- */
-  .hero{position:relative; overflow:hidden; padding:38px 28px 0; min-height:560px; background:linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);}
-  .chevrons{position:absolute; inset:0; z-index:0; overflow:hidden; opacity:.22;}
-  .chevron-row{position:absolute; display:flex; gap:14px; white-space:nowrap; animation:slide 14s linear infinite;}
-  .chevron-row.right{animation-direction:reverse;}
-  .chevron{width:0; height:0; border-top:19px solid transparent; border-bottom:19px solid transparent; border-right:26px solid var(--blue); opacity:.5;}
-  .chevron-row.right .chevron{border-right:none; border-left:26px solid var(--purple);}
-  @keyframes slide{ from{transform:translateX(0);} to{transform:translateX(-400px);} }
+-- If the "bundles" table already existed from before (no "img" column yet),
+-- this adds it without touching any existing rows.
+alter table bundles add column if not exists img text;
 
-  .hero-inner{position:relative; z-index:2; max-width:1180px; margin:0 auto;}
-  .model-switch{
-    display:inline-flex; padding:5px; background:var(--surface); border:1px solid var(--line);
-    border-radius:999px; gap:4px; margin-bottom:26px;
-  }
-  .model-switch button{
-    border:none; background:transparent; color:var(--muted); font-family:inherit; font-weight:700; font-size:14px;
-    padding:10px 24px; border-radius:999px; cursor:pointer; transition:all .25s; letter-spacing:.3px;
-  }
-  .model-switch button.active{background:var(--grad); color:#fff; box-shadow:0 4px 14px rgba(47,75,221,.25);}
+create table if not exists site_content (
+  key text primary key,
+  value jsonb not null
+);
 
-  .hero-grid{display:grid; grid-template-columns:1.1fr 1fr; align-items:center; gap:20px; min-height:420px;}
-  .hero-copy .eyebrow{
-    display:inline-flex; align-items:center; gap:8px; font-size:12px; font-weight:700; color:var(--muted);
-    background:var(--surface); border:1px solid var(--line); padding:6px 14px; border-radius:999px; margin-bottom:18px;
-  }
-  .hero-copy .eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--grad);}
-  .hero-copy h1{font-size:56px; font-weight:900; line-height:1.02; margin:0 0 14px; letter-spacing:-1px;}
-  .hero-copy h1 .modelname{background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;}
-  .hero-copy p{color:var(--muted); font-size:16px; line-height:1.7; max-width:480px; margin:0 0 26px;}
+-- Admin allowlist: only user IDs listed here get write access, even if
+-- more than one person ever ends up with a login on this project.
+-- Locked down entirely — nobody can read/write it via the app itself,
+-- only you via the Supabase SQL editor (step 6 below).
+create table if not exists admins (
+  user_id uuid primary key references auth.users(id) on delete cascade
+);
+alter table admins enable row level security;
+-- (intentionally no policies on "admins" — default-deny for everyone,
+-- including logged-in users; only editable from the SQL editor / dashboard)
 
-  .hero-car-wrap{position:relative;}
-  .price-ribbon{
-    position:absolute; top:6px; left:-8px; z-index:3;
-    background:var(--grad); color:#fff; font-weight:700; font-size:12px;
-    padding:8px 16px 8px 22px; transform:rotate(0deg); border-radius:3px 10px 10px 3px;
-    box-shadow:var(--shadow-md);
-  }
-  .price-ribbon:after{
-    content:''; position:absolute; left:-9px; top:0; border-top:16px solid transparent;
-    border-bottom:16px solid transparent; border-right:9px solid var(--pink);
-  }
-  .hero-car-wrap img{width:100%; display:block; filter:drop-shadow(0 24px 34px rgba(20,22,31,.18));}
+-- 2) Turn on Row Level Security.
+alter table accessories enable row level security;
+alter table bundles enable row level security;
+alter table site_content enable row level security;
 
-  /* ---------- controls ---------- */
-  .controls{
-    max-width:1180px; margin:0 auto; padding:26px 28px 6px; position:relative; z-index:2;
-  }
-  .search-row{display:flex; gap:12px; margin-bottom:18px;}
-  .search-box{
-    flex:1; display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--line);
-    border-radius:14px; padding:13px 18px; box-shadow:var(--shadow-sm); transition:border-color .2s, box-shadow .2s;
-  }
-  .search-box:focus-within{border-color:var(--blue); box-shadow:0 0 0 3px rgba(47,75,221,.1);}
-  .search-box input{
-    flex:1; background:transparent; border:none; outline:none; color:var(--text); font-family:inherit; font-size:15px;
-  }
-  .search-box input::placeholder{color:var(--muted-2);}
-  .search-box svg{flex-shrink:0; opacity:.6;}
-  .result-count{font-size:13px; color:var(--muted-2); white-space:nowrap; align-self:center; padding:0 4px;}
+-- 3) Public read access (the catalog itself must stay visible to everyone).
+drop policy if exists "public read accessories" on accessories;
+create policy "public read accessories" on accessories
+  for select using (true);
 
-  .chip-row{display:flex; gap:10px; flex-wrap:wrap;}
-  .chip{
-    border:1px solid var(--line); background:var(--surface); color:var(--muted); font-family:inherit;
-    font-size:13px; font-weight:600; padding:9px 18px; border-radius:999px; cursor:pointer; transition:all .2s;
-  }
-  .chip.active{background:var(--grad); color:#fff; border-color:transparent;}
-  .chip:hover:not(.active){border-color:var(--muted-2); color:var(--text);}
-  .chip.chip-bundles{border-color:rgba(240,165,58,.4); color:#f0a53a;}
-  .chip.chip-bundles.active{background:linear-gradient(95deg,#f0a53a,#ff7a3e); color:#fff;}
+drop policy if exists "public read bundles" on bundles;
+create policy "public read bundles" on bundles
+  for select using (true);
 
-  /* ---------- grid ---------- */
-  .grid-wrap{max-width:1180px; margin:0 auto; padding:20px 28px 70px;}
-  .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr)); gap:18px;}
-  .card{
-    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;
-    display:flex; flex-direction:column; transition:transform .22s, border-color .22s, box-shadow .22s;
-    position:relative; box-shadow:var(--shadow-sm);
-    animation:cardIn .45s cubic-bezier(.2,.7,.3,1) backwards;
-    animation-delay:calc(var(--i, 0) * 40ms);
-  }
-  @keyframes cardIn{ from{opacity:0; transform:translateY(14px);} }
-  @media (prefers-reduced-motion: reduce){
-    .card{animation:none;}
-  }
-  .card:hover{transform:translateY(-4px); border-color:#cdd3e2; box-shadow:var(--shadow-md);}
-  .card .img-wrap{
-    aspect-ratio:1/1; background:#fbfcfe; border-bottom:1px solid var(--line); position:relative; overflow:hidden;
-    display:flex; align-items:center; justify-content:center;
-  }
-  .card .img-wrap img{width:100%; height:100%; object-fit:contain; padding:14px;}
-  .card .img-wrap .placeholder{
-    width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#d7dae4;
-  }
-  .cat-tag{
-    position:absolute; top:10px; right:10px; z-index:2; font-size:10.5px; font-weight:700; color:#fff;
-    background:rgba(20,22,31,.65); backdrop-filter:blur(4px); padding:5px 10px; border-radius:999px;
-  }
-  .model-tag{
-    font-size:10px; font-weight:800; letter-spacing:.4px;
-    padding:5px 9px; border-radius:6px; background:var(--grad); color:#fff;
-  }
-  .badges-topleft{position:absolute; top:10px; left:10px; z-index:2; display:flex; flex-direction:column; gap:6px; align-items:flex-start;}
-  .discount-ribbon{
-    font-size:11px; font-weight:900; letter-spacing:.3px; padding:5px 9px; border-radius:6px;
-    background:#e14b4b; color:#fff;
-  }
-  .card .body{padding:16px 16px 18px; display:flex; flex-direction:column; gap:8px; flex:1;}
-  .card h3{font-size:15px; font-weight:700; margin:0; line-height:1.35; min-height:2.7em;}
-  .card .desc{font-size:12.5px; color:var(--muted-2); line-height:1.5; min-height:2.2em;}
-  .card .foot{display:flex; align-items:flex-end; justify-content:space-between; margin-top:auto; padding-top:10px; border-top:1px dashed var(--line);}
-  .card .price{font-size:19px; font-weight:900; color:var(--blue); letter-spacing:-.3px;}
-  .card .price small{font-size:11px; color:var(--muted-2); font-weight:500; margin-inline-start:2px;}
-  .card .old-price{font-size:11.5px; color:var(--muted-2); text-decoration:line-through;}
-  .card .sku{font-size:9.5px; color:var(--muted-2); opacity:.75; direction:ltr;}
-  .save-badge{font-size:10.5px; font-weight:800; color:#0f8a4d; background:rgba(15,138,77,.1); padding:4px 8px; border-radius:999px; white-space:nowrap;}
+drop policy if exists "public read site_content" on site_content;
+create policy "public read site_content" on site_content
+  for select using (true);
 
-  .empty-state{
-    text-align:center; padding:80px 20px; color:var(--muted);
-  }
-  .empty-state div.icon{font-size:38px; margin-bottom:14px;}
+-- 4) Writes (insert/update/delete) only for a user listed in "admins" —
+--    not just "any signed-in user". This means even if someone else ever
+--    gets a login on this Supabase project, they still can't edit the
+--    catalog unless you explicitly add their user_id to "admins".
+drop policy if exists "admin write accessories" on accessories;
+create policy "admin write accessories" on accessories
+  for all using (exists (select 1 from admins where user_id = auth.uid()))
+  with check (exists (select 1 from admins where user_id = auth.uid()));
 
-  /* ---------- footer ---------- */
-  footer{
-    border-top:1px solid var(--line); padding:34px 28px; text-align:center; color:var(--muted-2); font-size:12.5px; line-height:2;
-  }
-  footer b{color:var(--muted);}
+drop policy if exists "admin write bundles" on bundles;
+create policy "admin write bundles" on bundles
+  for all using (exists (select 1 from admins where user_id = auth.uid()))
+  with check (exists (select 1 from admins where user_id = auth.uid()));
 
-  /* ---------- bundles ---------- */
-  .bundle-card{
-    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
-    padding:18px; display:flex; flex-direction:column; gap:12px; position:relative; overflow:hidden;
-    box-shadow:var(--shadow-sm);
-    animation:cardIn .45s cubic-bezier(.2,.7,.3,1) backwards;
-    animation-delay:calc(var(--i, 0) * 40ms);
-  }
-  .bundle-card::before{content:''; position:absolute; top:0; right:0; left:0; height:3px; background:var(--grad);}
-  .bundle-card .tier{font-size:10.5px; font-weight:800; color:var(--muted-2); letter-spacing:.5px;}
-  .bundle-card h3{font-size:17px; font-weight:900; margin:0;}
-  .bundle-items{display:flex; flex-wrap:wrap; gap:6px;}
-  .bundle-items span{
-    font-size:10.5px; background:var(--surface-2); border:1px solid var(--line); color:var(--muted);
-    padding:4px 9px; border-radius:999px;
-  }
-  .bundle-price-row{margin-top:auto; padding-top:10px; border-top:1px dashed var(--line);}
-  .bundle-old-price{font-size:12px; color:var(--muted-2); text-decoration:line-through; display:block;}
-  .bundle-final-row{display:flex; align-items:baseline; justify-content:space-between;}
-  .bundle-final-price{font-size:21px; font-weight:900; color:var(--blue); letter-spacing:-.3px;}
-  .bundle-save{font-size:11px; font-weight:800; color:#0f8a4d; background:rgba(15,138,77,.1); padding:4px 9px; border-radius:999px;}
-  .bundle-code{font-size:10px; color:var(--muted-2); direction:ltr; margin-top:2px;}
+drop policy if exists "admin write site_content" on site_content;
+create policy "admin write site_content" on site_content
+  for all using (exists (select 1 from admins where user_id = auth.uid()))
+  with check (exists (select 1 from admins where user_id = auth.uid()));
 
-  /* ---------- lightbox ---------- */
-  .zoomable{cursor:zoom-in;}
-  .lightbox{
-    position:fixed; inset:0; z-index:200; background:rgba(20,22,31,.55); backdrop-filter:blur(10px);
-    display:none; align-items:center; justify-content:center; padding:24px;
-  }
-  .lightbox.show{display:flex; animation:lbFade .2s ease;}
-  @keyframes lbFade{ from{opacity:0;} }
-  .lightbox-content{
-    background:#fff; border-radius:22px; overflow:hidden; max-width:min(680px, 94vw); width:100%;
-    box-shadow:var(--shadow-lg); animation:lbPop .25s cubic-bezier(.2,.7,.3,1);
-  }
-  @keyframes lbPop{ from{transform:scale(.94); opacity:0;} }
-  .lightbox-content img{width:100%; max-height:68vh; object-fit:contain; display:block; background:#fbfcfe;}
-  .lightbox-caption{
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-    padding:16px 20px; border-top:1px solid var(--line);
-  }
-  .lightbox-caption div:first-child{font-weight:800; font-size:16px;}
-  .lightbox-caption div:last-child{font-weight:900; font-size:19px; color:var(--blue); white-space:nowrap;}
-  .lightbox-close{
-    position:absolute; top:20px; left:20px; width:44px; height:44px; border-radius:50%;
-    border:none; background:#fff; color:var(--text); font-size:17px; cursor:pointer;
-    box-shadow:var(--shadow-md); z-index:2;
-  }
-
-  /* ---------- print / PDF export ---------- */
-  #printView{display:none;}
-  @media print{
-    @page{size:A4; margin:18mm 16mm;}
-    body{background:#fff;}
-    body > *:not(#printView){display:none !important;}
-    #printView{display:block; font-family:'Heebo',sans-serif; color:#14161f;}
-
-    /* thin frame + running footer repeated on every printed page — border
-       and text, never a fill, so it always prints regardless of the
-       browser's "background graphics" print setting */
-    .pv-page-frame{
-      position:fixed; top:-14mm; bottom:-14mm; right:-12mm; left:-12mm;
-      border:0.75pt solid #d8dbe4; pointer-events:none;
-    }
-    .pv-page-footer{
-      position:fixed; bottom:-11mm; right:0; left:0; display:flex; justify-content:space-between;
-      font-size:7.5px; color:#9aa0b2; padding-top:2.5mm; border-top:0.5pt solid #e4e7ef; letter-spacing:.4px;
-    }
-
-    /* ---- cover page ---- */
-    .pv-cover{
-      position:relative; page-break-after:always; min-height:250mm;
-      display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
-      padding:6mm 6mm 0;
-    }
-    .pv-cover-mark{
-      position:absolute; top:2mm; left:2mm; display:grid; grid-template-columns:repeat(3,4.2px); grid-template-rows:repeat(2,4.2px); gap:1.4px;
-    }
-    .pv-cover-mark span{background:#14161f; border-radius:1px;}
-    .pv-cover-photo{
-      width:100%; max-width:172mm; height:96mm; border-radius:16px; overflow:hidden;
-      border:1.25pt solid #14161f; margin-bottom:12mm; background:#fbfcfe;
-    }
-    .pv-cover-photo img{width:100%; height:100%; object-fit:cover; display:block;}
-    .pv-cover .pv-logo{display:inline-grid; grid-template-columns:repeat(3,15px); grid-template-rows:repeat(2,15px); gap:4.5px; margin-bottom:5mm;}
-    .pv-cover .pv-logo span{background:#14161f; border-radius:2px;}
-    .pv-cover .pv-brand{font-size:22px; font-weight:900; letter-spacing:8px; margin-bottom:11mm; color:#14161f;}
-    .pv-cover .pv-eyebrow{
-      display:inline-block; font-size:9px; font-weight:800; letter-spacing:2px; color:#2f4bdd;
-      border:0.75pt solid #2f4bdd; border-radius:999px; padding:2mm 5mm; margin-bottom:7mm;
-    }
-    .pv-cover h1{font-size:42px; font-weight:900; letter-spacing:-1px; margin:0 0 4mm;}
-    .pv-cover .pv-sub{font-size:14px; color:#5a6072; letter-spacing:.3px; margin-bottom:9mm;}
-    .pv-cover-rule{width:30mm; height:1.6px; margin:0 auto 7mm; background:linear-gradient(90deg, #e93a92, #2f4bdd, #7a2be0);}
-    .pv-cover .pv-cover-date{
-      display:inline-block; font-size:9.5px; color:#9aa0b2; letter-spacing:.5px;
-      border:0.75pt solid #e4e7ef; border-radius:999px; padding:1.8mm 5mm;
-    }
-
-    /* ---- section divider pages ---- */
-    .pv-divider{
-      position:relative; page-break-before:always; page-break-after:always; min-height:250mm;
-      display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
-    }
-    .pv-divider-index{font-size:10px; font-weight:800; letter-spacing:4px; color:#9aa0b2; margin-bottom:6mm;}
-    .pv-divider h2{font-size:36px; font-weight:900; letter-spacing:-.6px; margin:0 0 6mm;}
-    .pv-divider-rule{width:24mm; height:1.6px; margin:0 auto 7mm; background:linear-gradient(90deg, #e93a92, #2f4bdd, #7a2be0);}
-    .pv-divider p{font-size:12.5px; color:#5a6072; max-width:110mm; margin:0 auto; line-height:1.7;}
-
-    /* ---- category sub-sections within the accessories pages ---- */
-    .pv-cat-block{margin-bottom:9mm;}
-    .pv-cat-header{
-      display:flex; align-items:baseline; gap:3mm; margin:0 0 4.5mm; padding-bottom:2mm; border-bottom:0.75pt solid #e4e7ef;
-      break-after:avoid; page-break-after:avoid; break-inside:avoid; page-break-inside:avoid;
-    }
-    .pv-cat-header h3{font-size:14.5px; font-weight:900; margin:0; letter-spacing:-.2px;}
-    .pv-cat-header .pv-cat-count{font-size:9px; color:#9aa0b2; margin-inline-start:auto; letter-spacing:.3px;}
-
-    /* ---- product grid/cards ---- */
-    .pv-grid{display:flex; flex-wrap:wrap; margin:0 -2.75mm 0;}
-    .pv-grid > .pv-card, .pv-grid > .pv-bundle{margin:0 2.75mm 5.5mm; box-sizing:border-box;}
-    .pv-grid > .pv-card{width:calc(33.333% - 5.5mm);}
-    .pv-card{
-      border:0.75pt solid #e4e7ef; border-radius:12px; overflow:hidden; page-break-inside:avoid; break-inside:avoid;
-      background:#fff;
-    }
-    .pv-card .pv-img{position:relative; height:32mm; background:#fbfcfe; display:flex; align-items:center; justify-content:center; border-bottom:0.75pt solid #e4e7ef;}
-    .pv-card .pv-img img{max-width:100%; max-height:100%; object-fit:contain;}
-    .pv-cat-tag{
-      position:absolute; top:2mm; right:2mm; font-size:6.5px; font-weight:800; letter-spacing:.2px;
-      padding:1mm 2mm; border-radius:999px; background:#fff; border:0.75pt solid currentColor;
-    }
-    .pv-card .pv-body{padding:3.4mm;}
-    .pv-card h4{font-size:10.5px; font-weight:800; margin:0 0 1.5mm; line-height:1.3; min-height:5.6mm;}
-    .pv-card .pv-desc{font-size:8px; color:#5a6072; line-height:1.45; min-height:7mm;}
-    .pv-card .pv-foot{display:flex; justify-content:space-between; align-items:center; margin-top:2.2mm; padding-top:2mm; border-top:0.5pt dashed #e4e7ef;}
-    .pv-price-wrap{display:flex; flex-direction:column; align-items:flex-start; gap:0.3mm;}
-    .pv-card .pv-price{font-size:13px; font-weight:900; color:#2f4bdd; letter-spacing:-.2px;}
-    .pv-card .pv-oldprice{font-size:8px; color:#9aa0b2; text-decoration:line-through;}
-    .pv-card .pv-sku{font-size:7px; color:#9aa0b2; direction:ltr; font-family:'JetBrains Mono',monospace;}
-
-    /* ---- bundle grid/cards ---- */
-    .pv-grid-bundles > .pv-bundle{width:calc(50% - 5.5mm);}
-    .pv-bundle{
-      border:0.75pt solid #e4e7ef; border-radius:14px; overflow:hidden; page-break-inside:avoid; break-inside:avoid;
-      background:#fff; position:relative;
-    }
-    .pv-bundle::before{content:''; position:absolute; top:0; right:0; left:0; height:1.4mm; background:linear-gradient(90deg, #e93a92, #2f4bdd, #7a2be0); z-index:1;}
-    .pv-bundle-img{height:30mm; background:#fbfcfe; border-bottom:0.75pt solid #e4e7ef;}
-    .pv-bundle-img img{width:100%; height:100%; object-fit:contain; padding:3mm; display:block;}
-    .pv-bundle-body{padding:4.5mm;}
-    .pv-bundle h4{font-size:13.5px; font-weight:900; margin:0 0 2.5mm; letter-spacing:-.1px;}
-    .pv-items{list-style:none; margin:0 0 3.5mm; padding:0; font-size:8.5px; color:#5a6072; line-height:1.95;}
-    .pv-items li{position:relative; padding-inline-start:3.4mm;}
-    .pv-items li::before{content:''; position:absolute; right:0; top:1.9mm; width:1.4mm; height:1.4mm; border-radius:50%; background:#2f4bdd;}
-    .pv-bfoot{display:flex; justify-content:space-between; align-items:center; padding-top:2.4mm; border-top:0.5pt dashed #e4e7ef;}
-    .pv-save{font-size:7.5px; font-weight:800; color:#0f8a4d; border:0.75pt solid #0f8a4d; padding:0.7mm 2mm; border-radius:999px; margin-inline-start:2mm;}
-
-    .pv-footer{margin-top:9mm; padding-top:4mm; border-top:0.75pt solid #e4e7ef; font-size:8px; color:#5a6072; text-align:center; line-height:1.8;}
-  }
-
-
-  /* ---------- admin ---------- */
-  .admin-controls{display:flex; gap:8px; align-items:center;}
-  .admin-btn{
-    font-family:inherit; font-size:12.5px; font-weight:700; border-radius:999px; padding:8px 16px;
-    border:1px solid var(--line); background:var(--surface-2); color:var(--muted); cursor:pointer; transition:all .2s;
-  }
-  .admin-btn:hover{color:var(--text); border-color:var(--muted-2);}
-  .admin-btn.on{background:var(--grad); color:#fff; border-color:transparent;}
-  .admin-btn.ghost{background:transparent;}
-  label.admin-btn{display:inline-flex; align-items:center;}
-  .admin-bar{
-    background:linear-gradient(90deg, rgba(233,58,146,.07), rgba(47,75,221,.07), rgba(122,43,224,.07));
-    border-bottom:1px solid var(--line); padding:10px 28px; font-size:13px; color:var(--muted);
-    display:flex; justify-content:space-between; align-items:center;
-  }
-  .save-status{font-size:11.5px; color:#0f8a4d; opacity:0; transition:opacity .3s;}
-  .save-status.show{opacity:1;}
-
-  .card.admin-mode{cursor:pointer;}
-  .card-admin-actions{
-    position:absolute; inset:0; z-index:5; display:none; align-items:center; justify-content:center; gap:10px;
-    background:rgba(255,255,255,.78); backdrop-filter:blur(3px);
-  }
-  .card.admin-mode:hover .card-admin-actions{display:flex;}
-  .bundle-card.admin-mode{cursor:pointer;}
-  .bundle-card.admin-mode:hover .card-admin-actions{display:flex;}
-  .icon-btn{
-    width:40px; height:40px; border-radius:50%; border:none; display:flex; align-items:center; justify-content:center;
-    cursor:pointer; font-size:16px; transition:transform .15s;
-  }
-  .icon-btn:hover{transform:scale(1.08);}
-  .icon-btn.edit{background:var(--grad); color:#fff;}
-  .icon-btn.del{background:#e14b4b; color:#fff;}
-
-  .add-fab{
-    position:fixed; bottom:28px; left:28px; z-index:60; background:var(--grad); color:#fff; border:none;
-    font-family:inherit; font-weight:800; font-size:14px; padding:16px 24px; border-radius:999px; cursor:pointer;
-    box-shadow:var(--shadow-lg); display:none; align-items:center; gap:8px;
-  }
-  .add-fab.show{display:inline-flex;}
-
-  .modal-overlay{
-    position:fixed; inset:0; background:rgba(20,22,31,.38); backdrop-filter:blur(6px); z-index:100;
-    display:none; align-items:center; justify-content:center; padding:20px;
-  }
-  .modal-overlay.show{display:flex;}
-  .modal{
-    background:var(--surface); border:1px solid var(--line); border-radius:20px; width:100%; max-width:560px;
-    max-height:88vh; overflow-y:auto; padding:26px; box-shadow:var(--shadow-lg);
-  }
-  .modal h2{margin:0 0 20px; font-size:20px; font-weight:800;}
-  .field{margin-bottom:16px;}
-  .field label{display:block; font-size:12.5px; color:var(--muted); margin-bottom:6px; font-weight:700;}
-  .field input[type=text], .field input[type=number], .field textarea, .field select{
-    width:100%; background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:11px 13px;
-    color:var(--text); font-family:inherit; font-size:14px; outline:none;
-  }
-  .field textarea{resize:vertical; min-height:64px;}
-  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
-  .img-upload{
-    display:flex; align-items:center; gap:14px; background:var(--surface-2); border:1px dashed var(--line);
-    border-radius:12px; padding:12px; cursor:pointer;
-  }
-  .img-upload img{width:56px; height:56px; object-fit:contain; background:#fbfcfe; border:1px solid var(--line); border-radius:8px;}
-  .img-upload span{font-size:13px; color:var(--muted);}
-  .modal-actions{display:flex; gap:10px; margin-top:22px;}
-  .btn{
-    flex:1; border:none; border-radius:12px; padding:13px; font-family:inherit; font-weight:800; font-size:14px; cursor:pointer;
-  }
-  .btn.primary{background:var(--grad); color:#fff;}
-  .btn.secondary{background:var(--surface-2); color:var(--muted); border:1px solid var(--line);}
-  .btn.danger{background:transparent; color:#e14b4b; border:1px solid rgba(225,75,75,.4);}
-
-  /* ---------- splash ---------- */
-  .splash{
-    position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center;
-    overflow:hidden; padding:40px 24px; background:linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
-  }
-  .splash-inner{position:relative; z-index:2; text-align:center; max-width:900px;}
-  .splash-logo{
-    display:flex; align-items:center; justify-content:center; gap:12px; font-weight:900; font-size:22px;
-    letter-spacing:1px; margin-bottom:28px;
-  }
-  .grid-logo.big{grid-template-columns:repeat(3,10px); grid-template-rows:repeat(2,10px); gap:3px;}
-  .splash .eyebrow{
-    display:inline-flex; align-items:center; gap:8px; font-size:12px; font-weight:700; color:var(--muted);
-    background:var(--surface); border:1px solid var(--line); padding:6px 14px; border-radius:999px; margin-bottom:20px;
-  }
-  .splash .eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--grad);}
-  .splash-title{font-size:44px; font-weight:900; margin:0 0 12px; letter-spacing:-1px; background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;}
-  .splash-sub{color:var(--muted); font-size:16px; margin:0 0 40px;}
-
-  .splash-cards{display:grid; grid-template-columns:1fr 1fr; gap:22px;}
-  .splash-card{
-    background:var(--surface); border:1px solid var(--line); border-radius:24px; padding:26px 20px 22px;
-    cursor:pointer; font-family:inherit; color:var(--text); transition:transform .25s, border-color .25s, box-shadow .25s;
-    display:flex; flex-direction:column; align-items:center; position:relative; overflow:hidden;
-    box-shadow:var(--shadow-sm);
-  }
-  .splash-card::before{
-    content:''; position:absolute; inset:0; opacity:0; background:var(--grad-soft); transition:opacity .3s; z-index:0;
-  }
-  .splash-card:hover{transform:translateY(-6px); border-color:transparent; box-shadow:var(--shadow-lg);}
-  .splash-card:hover::before{opacity:1;}
-  .splash-card img{width:100%; max-width:340px; position:relative; z-index:1; filter:drop-shadow(0 16px 22px rgba(20,22,31,.2));}
-  .splash-card-body{position:relative; z-index:1; text-align:center; margin-top:6px;}
-  .splash-card-body h2{font-size:24px; font-weight:900; margin:0 0 8px;}
-  .splash-cta{font-size:13px; font-weight:700; color:var(--muted); display:inline-flex; gap:6px;}
-  .splash-card:hover .splash-cta{color:var(--blue);}
-
-  @media (max-width: 720px){
-    .splash-cards{grid-template-columns:1fr;}
-    .splash-title{font-size:32px;}
-  }
-
-  @media (max-width: 880px){
-    .hero-grid{grid-template-columns:1fr; text-align:center;}
-    .hero-copy p{margin-inline:auto;}
-    .hero-copy h1{font-size:38px;}
-    .topbar nav{display:none;}
-    .search-row{flex-direction:column;}
-  }
-
-/* ---------- accessibility: focus states ---------- */
-a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible,
-select:focus-visible, .chip:focus-visible, .splash-card:focus-visible, .card:focus-visible,
-.zoomable:focus-visible{
-  outline: 3px solid var(--blue); outline-offset: 2px; border-radius: 6px;
-}
-.skip-link{
-  position:absolute; right:8px; top:-60px; background:var(--text); color:#fff; padding:10px 16px;
-  border-radius:8px; z-index:200; transition:top .2s; font-weight:700;
-}
-.skip-link:focus{ top:8px; }
-
-/* ---------- loading screen ---------- */
-.app-loading{
-  position:fixed; inset:0; z-index:500; background:var(--bg); display:flex; flex-direction:column;
-  align-items:center; justify-content:center; gap:16px;
-}
-.app-loading[hidden]{ display:none; }
-.spinner{
-  width:44px; height:44px; border-radius:50%; border:4px solid var(--line); border-top-color:var(--blue);
-  animation:spin 0.8s linear infinite;
-}
-@keyframes spin{ to{ transform:rotate(360deg); } }
-.app-loading p{ color:var(--muted); font-weight:700; font-size:14px; }
-
-/* ---------- error / toast banners ---------- */
-.error-banner{
-  position:fixed; top:14px; inset-inline:0; margin:0 auto; max-width:560px; z-index:400;
-  background:#fff0f0; border:1px solid #f3b8b8; color:#a41f1f; padding:14px 18px; border-radius:14px;
-  box-shadow:var(--shadow-md); display:flex; align-items:center; gap:10px; justify-content:space-between;
-  font-size:13px; font-weight:600;
-}
-.error-banner[hidden]{ display:none; }
-.error-banner button{
-  background:transparent; border:none; color:#a41f1f; font-weight:900; cursor:pointer; font-size:16px; line-height:1;
-}
-.toast{
-  position:fixed; bottom:24px; inset-inline:0; margin:0 auto; max-width:360px; z-index:400;
-  background:var(--text); color:#fff; padding:12px 18px; border-radius:12px; text-align:center;
-  font-size:13px; font-weight:700; box-shadow:var(--shadow-md); opacity:0; transform:translateY(8px);
-  transition:opacity .2s, transform .2s; pointer-events:none;
-}
-.toast.show{ opacity:1; transform:translateY(0); }
-
-/* ---------- login modal ---------- */
-.login-field{ margin-bottom:14px; }
-.login-field label{ display:block; font-size:12.5px; font-weight:700; color:var(--muted); margin-bottom:6px; }
-.login-field input{
-  width:100%; padding:11px 13px; border-radius:10px; border:1px solid var(--line); font-family:inherit; font-size:14px;
-}
-.login-error{ color:#a41f1f; font-size:12.5px; font-weight:700; margin:-4px 0 12px; min-height:16px; }
-
-/* ---------- share button ---------- */
-.share-btn{
-  display:inline-flex; align-items:center; gap:6px; background:var(--surface-2); border:1px solid var(--line);
-  color:var(--muted); font-size:12.5px; font-weight:700; padding:8px 13px; border-radius:10px; cursor:pointer;
-  font-family:inherit;
-}
-.share-btn:hover{ color:var(--blue); border-color:var(--blue); }
-
-/* ---------- true lazy-loaded image placeholders ---------- */
-.card img.zoomable, .pv-img img{
-  background:var(--surface-2);
-}
-img[data-src]{ opacity:0; transition:opacity .3s ease; }
-img.loaded{ opacity:1; }
-
-.visually-hidden{
-  position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
-  clip:rect(0,0,0,0); white-space:nowrap; border:0;
-}
-
-/* ---------- bundle image (new) ---------- */
-/* Only affects cards that actually render a .bundle-img-wrap (i.e. have an
-   image set) — bundle cards without an image are visually unchanged. */
-.bundle-img-wrap{
-  margin:-18px -18px 0; border-radius:var(--radius) var(--radius) 0 0; overflow:hidden;
-  background:var(--surface-2); aspect-ratio:16/9;
-}
-.bundle-img-wrap img{ width:100%; height:100%; object-fit:contain; padding:14px; display:block; }
-
-/* ---------- clickable / hoverable bundle items (new) ---------- */
-.bundle-items{ position:relative; }
-.bundle-item-link{
-  font: inherit; font-size:10.5px; background:var(--surface-2); border:1px solid var(--line); color:var(--muted);
-  padding:4px 9px; border-radius:999px; cursor:pointer; position:relative; font-weight:700;
-  transition:background .15s, color .15s, border-color .15s;
-}
-.bundle-item-link:hover, .bundle-item-link:focus-visible{
-  background:var(--grad-soft); color:var(--blue); border-color:transparent;
-}
-.bundle-item-tooltip{
-  position:absolute; bottom:calc(100% + 8px); right:0; white-space:nowrap; background:var(--text); color:#fff;
-  font-size:11px; font-weight:700; padding:6px 10px; border-radius:8px; opacity:0; pointer-events:none;
-  transform:translateY(4px); transition:opacity .15s, transform .15s; z-index:5; box-shadow:var(--shadow-md);
-}
-.bundle-item-link:hover .bundle-item-tooltip, .bundle-item-link:focus-visible .bundle-item-tooltip{
-  opacity:1; transform:translateY(0);
-}
-
-/* ---------- site access gate (soft view-only deterrent, NOT real security) ---------- */
-.access-gate{
-  position:fixed; inset:0; z-index:600; background:var(--bg);
-  display:flex; align-items:center; justify-content:center; padding:24px;
-}
-.access-gate[hidden]{ display:none; }
-.access-gate-card{
-  background:var(--surface); border:1px solid var(--line); border-radius:24px; box-shadow:var(--shadow-lg);
-  padding:36px 30px; max-width:340px; width:100%; text-align:center;
-}
-.access-gate-card .grid-logo{ margin:0 auto 18px; }
-.access-gate-card h1{ font-size:20px; font-weight:900; margin:0 0 8px; }
-.access-gate-card p{ color:var(--muted); font-size:13.5px; margin:0 0 20px; }
-.access-gate-card input[type="password"]{
-  width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--line); font-family:inherit;
-  font-size:16px; text-align:center; letter-spacing:3px; margin-bottom:8px;
-}
-
-/* ---------- "back to bundle" banner (new) ---------- */
-.bundle-return-banner{
-  position:fixed; top:72px; inset-inline:0; margin:0 auto; max-width:420px; z-index:150;
-  background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow-lg);
-  border-radius:14px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between;
-  gap:12px; font-size:12.5px; font-weight:700; color:var(--muted);
-}
-.bundle-return-banner[hidden]{ display:none; }
+-- =========================================================================
+-- 5) One-time manual step: create your admin login.
+--    Supabase Dashboard → Authentication → Users → "Add user"
+--    Enter an email + password for yourself. Use that email/password to
+--    sign in via the "מצב ניהול" (admin mode) button on the site.
+--
+-- 6) One-time manual step: add yourself to the "admins" allowlist.
+--    Run this in the SQL editor AFTER creating your user in step 5
+--    (replace the email with the one you used):
+--
+--      insert into admins (user_id)
+--      select id from auth.users where email = 'you@example.com';
+--
+--    Without this step, even your own admin login will be able to READ
+--    the catalog but NOT edit/delete anything — the allowlist is empty
+--    by default.
+--
+-- 7) One-time manual step: stop strangers from creating their own accounts.
+--    Supabase Dashboard → Authentication → Providers → Email →
+--    turn OFF "Allow new users to sign up".
+--    (Existing users, i.e. the admin account you created above, can still
+--    sign in — this only blocks new self-service sign-ups.)
+--
+-- To add a second admin later, or remove yourself/someone: just run
+-- another `insert into admins ...` (as above) or
+-- `delete from admins where user_id = (select id from auth.users where email = '...')`.
+-- =========================================================================
