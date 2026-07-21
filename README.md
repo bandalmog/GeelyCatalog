@@ -1,226 +1,406 @@
-# Geely Accessories Catalog — שדרוג מקצועי
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>קטלוג אביזרים | Geely STARRAY EM-i &amp; EX5</title>
+<meta name="description" content="קטלוג האביזרים הרשמי לרכבי Geely STARRAY EM-i ו-EX5 — טעינה, הגנה, מולטימדיה וחבילות משתלמות. מחירים כולל מע&quot;מ.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="קטלוג אביזרים | Geely STARRAY EM-i & EX5">
+<meta property="og:description" content="כל האביזרים הרשמיים לרכב שלך — חיפוש מהיר, מחירים מעודכנים וחבילות משתלמות.">
+<meta property="og:image" content="og-image.jpg">
+<meta property="og:locale" content="he_IL">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#f7f8fb">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2314161f'/%3E%3Cg fill='%23ffffff'%3E%3Crect x='6' y='9' width='5.4' height='6' rx='1'/%3E%3Crect x='13.3' y='9' width='5.4' height='6' rx='1'/%3E%3Crect x='20.6' y='9' width='5.4' height='6' rx='1'/%3E%3Crect x='6' y='17' width='5.4' height='6' rx='1'/%3E%3Crect x='13.3' y='17' width='5.4' height='6' rx='1'/%3E%3Crect x='20.6' y='17' width='5.4' height='6' rx='1'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+<script src="config.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body>
 
-## מה חדש בעדכון הזה (חשוב לקרוא)
+  <a href="#catalog" class="skip-link">דילוג לתוכן הראשי</a>
 
-**עדכון אחרון (הכי טרי):**
-- **עיצוב PDF שודרג לגמרי מחדש** ברמה הרבה יותר גבוהה — עמוד שער עם תמונה
-  ממוסגרת גדולה, עמודי "שער פרק" נפרדים לאביזרים ולחבילות, ואביזרים
-  מקובצים לפי קטגוריה עם כותרות מדור (אין יותר עמוד סיום — הוסר לפי
-  בקשה, פרטי הקשר יושבים בפוטר הקומפקטי בסוף התוכן).
-- **תוקן באג פריסה אמיתי:** כותרת קטגוריה הייתה יכולה להישאר לבד בתחתית
-  עמוד כשהאביזרים שלה "קופצים" לעמוד הבא — נראה שבור מבחינה חזותית.
-  הסיבה: הגריד היה בנוי ב-CSS Grid, שלא מתפצל בצורה אמינה בין עמודים
-  בהדפסת דפדפן. הוחלף לפריסת flexbox שמתפצלת בצורה הרבה יותר צפויה,
-  ביחד עם כלל שמונע מכותרת קטגוריה להיות "יתומה" בתחתית עמוד.
-- **טיפ חשוב להדפסה:** בחלון ההדפסה של הדפדפן (כשלוחצים על כפתור
-  ה-PDF), ודאו שהאפשרות **"גרפיקת רקע" / "Background graphics"** מסומנת
-  (בד"כ ב-"More settings") — זה מוסיף את קווי הגרדיאנט הצבעוניים. גם
-  בלעדיה המסמך שלם וקריא לגמרי, רק פחות עשיר ויזואלית.
-- **תוקן קישור לאביזר "סט שטיחי גומי שלושה חלקים" (EX-001):** ההתאמה לא
-  זיהתה "שלושה" מול "3" ככתיב זהה של אותו מספר. נוסף נרמול מספרים
-  (שלושה↔3, זוג↔2 וכו') שפותר את זה.
-- **לגבי "כבל טעינה ציבורי תלת פאזי + תיק" שדיווחת עליו:** לא הצלחתי
-  לאמת/לתקן את זה בוודאות כי אין לי גישה לנתונים החיים שלך ב-Supabase
-  (רק לקטלוג הבסיס ששלחת בהתחלה). אם זה עדיין לא מקושר — כנראה ששם
-  המוצר בקטלוג בפועל שונה מהטקסט בחבילה (למשל "16A" מול "+ תיק"). הפתרון
-  הכי מהיר: לוודא ששם האביזר בקטלוג כולל את אותן מילות מפתח שכתובות
-  בטקסט החבילה (או להפך).
-- **אפשרות "חזרה לחבילה":** לחיצה על אביזר מקושר בתוך חבילה קופצת אליו
-  כרגיל, ועכשיו מופיע גם כפתור "→ חזרה לחבילה" שמחזיר בדיוק לתצוגת
-  החבילה שממנה יצאתם.
+  <!--
+    Site access gate: asks for a simple code before showing the catalog.
+    IMPORTANT — this is NOT real security. It only hides the page from
+    casual visitors / search engines; it does not protect the underlying
+    data (see README, section "שער כניסה לאתר"). Real protection for
+    writing/editing/deleting data is still the Supabase Auth + RLS setup.
+  -->
+  <div class="access-gate" id="accessGate" role="dialog" aria-modal="true" aria-labelledby="accessGateTitle">
+    <div class="access-gate-card">
+      <div class="grid-logo"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <h1 id="accessGateTitle">כניסה לקטלוג</h1>
+      <p>הזינו את קוד הגישה שקיבלתם כדי להמשיך</p>
+      <form id="accessGateForm" novalidate>
+        <label for="accessGateInput" class="visually-hidden">קוד גישה</label>
+        <input type="password" id="accessGateInput" inputmode="numeric" autocomplete="off" placeholder="קוד גישה" required>
+        <div class="login-error" id="accessGateError" role="alert"></div>
+        <button type="submit" class="btn primary" style="width:100%;">כניסה</button>
+      </form>
+    </div>
+  </div>
 
-1. **תוקן באג אמיתי:** ייבוא קובץ JSON היה מוחק את **כל** טבלת האביזרים/
-   החבילות ב-Supabase ובונה אותה מחדש (במקום רק לעדכן). זה תוקן — ייבוא
-   מעכשיו רק מוסיף/מעדכן לפי מק"ט, ולעולם לא מוחק שורות קיימות.
-2. **נוספה תמונה לחבילות**, ו**קישור לחיצה + הצגת מחיר בהעברת עכבר** על כל
-   אביזר שמופיע בתוך חבילה (פירוט למטה, סעיף 4).
-3. **נוסף שער כניסה עם קוד (`2514`)** לפני הצגת הקטלוג (פירוט וסייגים
-   חשובים למטה, סעיף "שער כניסה לאתר").
-4. **יש להריץ מחדש את `supabase-setup.sql`** (בטוח להריץ שוב גם אם כבר
-   הרצת בעבר) — נוספה עמודת `img` לטבלת `bundles`.
-5. **תוקן קישור אביזרים בתוך חבילה:** ההתאמה דרשה קודם שם זהה לחלוטין בין
-   השורה בחבילה לשם המוצר בקטלוג — ברוב המקרים הטקסט בחבילה מקוצר (למשל
-   "פס תאורה STARLED" מול "פס תאורה קדמית STARLED"), אז כמעט כלום לא
-   התקשר בפועל. הוחלף בהתאמה לפי מילים (כל מילות שורת החבילה קיימות בשם
-   המוצר, או להפך) — כיסוי עלה מכ-50% לכ-96% מהפריטים בקטלוג הבסיס. פריט
-   בלי התאמה טובה נשאר טקסט רגיל בכוונה, כדי לא ליצור קישור שגוי.
-6. **עיצוב PDF שודרג:** עמוד שער מחודש עם תאריך הפקה אוטומטי, כותרות
-   מדורים עם קו הדגשה בגרדיאנט המותג, תגית קטגוריה צבעונית על כל אביזר,
-   כרטיסי חבילה עם תמונה (אם הוגדרה) ורשימת פריטים מסודרת עם נקודות,
-   ופוטר עדין שחוזר בתחתית כל עמוד עם שם המותג והתאריך.
-7. **חוזק ה-RLS:** כתיבה/עריכה/מחיקה עוברות כעת דרך רשימת מנהלים מפורשת
-   (טבלת `admins` חדשה) במקום "כל מי שמחובר" — יש **שלב SQL נוסף** להרצה
-   (פירוט וסייגים למטה, סעיף 1).
+  <div class="app-loading" id="appLoading" role="status" aria-live="polite" hidden>
+    <div class="spinner" aria-hidden="true"></div>
+    <p>טוען את הקטלוג&hellip;</p>
+  </div>
 
-מסמך זה מסביר מה בוצע, מה עליך לעשות ידנית בלוח הבקרה של Supabase, ומה נבדק.
-העיצוב, המבנה החזותי והפונקציונליות הקיימת נשמרו במלואם — השינויים הם אבטחה,
-ביצועים, נגישות וניקיון קוד בלבד.
+  <!-- Error banner: shown on server/network failure, with retry -->
+  <div class="error-banner" id="errorBanner" hidden role="alert">
+    <span id="errorBannerText">אירעה שגיאה בטעינת הנתונים.</span>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <button class="btn secondary" id="retryBtn" type="button" style="padding:6px 12px; font-size:12px;">נסה שוב</button>
+      <button id="errorBannerClose" type="button" aria-label="סגירת הודעה">&#10005;</button>
+    </div>
+  </div>
 
-## מבנה הקבצים החדש
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-```
-index.html            — מבנה העמוד בלבד (ללא CSS/JS/נתונים מוטמעים)
-styles.css             — כל העיצוב
-config.js               — כתובת פרויקט Supabase והמפתח הציבורי (anon key)
-app.js                  — כל לוגיקת האפליקציה
-data.json               — קטלוג הבסיס (משמש רק לזריעה חד-פעמית של מסד נתונים ריק)
-images/*.webp            — כל תמונות המוצרים, כקבצי WebP נפרדים (היו base64 בתוך ה-HTML)
-supabase-setup.sql       — סקריפט SQL להרצה חד-פעמית ב-Supabase (RLS)
-README.md                — המסמך הזה
-```
+  <div class="bundle-return-banner" id="bundleReturnBanner" hidden>
+    <span>אתם צופים באביזר מתוך חבילה</span>
+    <button type="button" id="bundleReturnBtn" class="btn primary" style="padding:6px 16px; font-size:12.5px;">&larr; חזרה לחבילה</button>
+  </div>
 
-יש להעלות את כל הקבצים (כולל תיקיית `images/`) יחד לאותה תיקייה בשרת/אחסון.
-**האתר חייב לרוץ מעל שרת אינטרנט (http/https)** ולא כקובץ מקומי (`file://`),
-כי `app.js` טוען את `data.json` באמצעות `fetch`. לבדיקה מקומית אפשר להריץ:
+  <div class="topbar">
+    <div class="brand">
+      <div class="grid-logo"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      GEELY <span style="color:var(--muted-2); font-weight:500;">| קטלוג אביזרים</span>
+    </div>
+    <nav id="topNav" style="display:none;">
+      <a href="#" id="backToSplashLink">בחירת דגם אחר</a>
+      <a href="#catalog">הקטלוג</a>
+    </nav>
+    <div class="admin-controls">
+      <button id="adminToggleBtn" class="admin-btn" aria-haspopup="dialog">מצב ניהול</button>
+      <button id="pdfStarrayBtn" class="admin-btn ghost" style="display:none;">🖨️ PDF STARRAY</button>
+      <button id="pdfEx5Btn" class="admin-btn ghost" style="display:none;">🖨️ PDF EX5</button>
+      <button id="exportSiteBtn" class="admin-btn ghost" style="display:none;">⬇️ הורדת אתר מעודכן</button>
+      <button id="exportBtn" class="admin-btn ghost" style="display:none;">ייצוא נתונים (JSON)</button>
+      <label id="importBtn" class="admin-btn ghost" style="display:none;" for="importFile">
+        ייבוא נתונים
+        <input type="file" id="importFile" accept="application/json" style="display:none;">
+      </label>
+    </div>
+  </div>
+  <div id="adminBar" class="admin-bar" style="display:none;">
+    <span>🛠️ מצב ניהול פעיל &mdash; לחצו על כרטיס לעריכה, או הוסיפו אביזר חדש</span>
+    <span id="saveStatus" class="save-status" role="status" aria-live="polite"></span>
+  </div>
 
-```
-python3 -m http.server 8000
-```
+  <section class="splash" id="splashScreen">
+    <div class="chevrons" aria-hidden="true">
+      <div class="chevron-row" style="top:30%;">
+        <span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span>
+      </div>
+      <div class="chevron-row right" style="top:66%;">
+        <span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span>
+      </div>
+    </div>
+    <div class="splash-inner">
+      <div class="splash-logo">
+        <div class="grid-logo big"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        GEELY
+      </div>
+      <div class="eyebrow"><span class="dot"></span> <span id="splashEyebrowText">קטלוג אביזרים רשמי</span></div>
+      <h1 class="splash-title" id="splashTitleText">בחרו את <span class="modelname">הדגם</span> שלכם</h1>
+      <p class="splash-sub" id="splashSubText">כל אביזר, לכל דגם &mdash; מותאם בדיוק לרכב שלך</p>
+      <button id="editSplashBtn" class="admin-btn on" style="display:none; margin-bottom:26px;">&#9998;&#65039; עריכת עמוד הנחיתה</button>
 
-ואז לפתוח `http://localhost:8000`.
+      <div class="splash-cards">
+        <button class="splash-card" data-model="starray">
+          <img id="splashImgStarray" src="" alt="רכב STARRAY EM-i">
+          <div class="splash-card-body">
+            <h2>STARRAY EM-i</h2>
+            <span class="splash-cta" data-cta="1">לצפייה באביזרים &larr;</span>
+          </div>
+        </button>
+        <button class="splash-card" data-model="ex5">
+          <img id="splashImgEx5" src="" alt="רכב EX5">
+          <div class="splash-card-body">
+            <h2>EX5</h2>
+            <span class="splash-cta" data-cta="2">לצפייה באביזרים &larr;</span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </section>
 
-## 1. אבטחה (בוצע + פעולה נדרשת ממך)
+  <div id="mainApp" style="display:none;">
 
-- **קוד ה-PIN (`8133`) הוסר לגמרי מהקוד.** הוא לא סיפק הגנה אמיתית ממילא —
-  כל מי שפתח את כלי הפיתוח בדפדפן יכול היה לקרוא אותו או לעקוף אותו ולפנות
-  ישירות ל-Supabase.
-- **הוחלף באימות אמיתי (Supabase Auth):** כניסה ל"מצב ניהול" כעת פותחת חלון
-  התחברות עם דוא"ל וסיסמה אמיתיים, שנבדקים מול Supabase.
-- **הרשאות (RLS) ב-Supabase:** הרצתי/הכנתי עבורך את `supabase-setup.sql`
-  שמפעיל Row Level Security בטבלאות `accessories`, `bundles`, ו-`site_content`:
-  - קריאה (SELECT) פתוחה לכולם — כדי שהקטלוג הציבורי ימשיך לעבוד.
-  - הוספה/עריכה/מחיקה מותרות **רק** למשתמש שרשום במפורש בטבלת `admins`
-    חדשה — לא סתם "כל מי שמחובר". גם אם יום אחד ייווצר עוד משתמש כלשהו
-    בפרויקט Supabase (בטעות או בכוונה), הוא **לא** יוכל לערוך את הקטלוג
-    אלא אם תוסיף אותו במפורש לרשימה. ללא חיבור וללא רישום ברשימה — כל
-    ניסיון כתיבה נחסם **בשרת עצמו**, לא רק בממשק.
-  - **פעולה נדרשת ממך (חד-פעמי, 4 שלבים):**
-    1. הרץ את `supabase-setup.sql` ב-SQL Editor של הפרויקט.
-    2. ב-Authentication → Users → Add user, צור לעצמך משתמש מנהל (דוא"ל+סיסמה).
-    3. **הוסף את עצמך לרשימת המנהלים** — הרץ ב-SQL Editor (עם הדוא"ל שבו
-       השתמשת בשלב 2):
-       ```sql
-       insert into admins (user_id)
-       select id from auth.users where email = 'you@example.com';
-       ```
-       בלי השלב הזה, גם עם התחברות תקינה לא תהיה אפשרות לערוך/למחוק —
-       הרשימה ריקה כברירת מחדל.
-    4. ב-Authentication → Providers → Email, כבה את "Allow new users to sign up"
-       כדי שאף אחד אחר לא יוכל ליצור לעצמו חשבון בכלל.
-  - לגבי מפתח ה-`anon key` שנשאר גלוי ב-`config.js`: זהו התנהגות תקנית ומכוונת
-    של Supabase — המפתח הזה **אמור** להיות ציבורי; ההגנה האמיתית היא ה-RLS,
-    לא הסתרת המפתח.
-- **סניטציה ל-XSS:** כל טקסט שמגיע מהמשתמש/מהמסד (שם מוצר, תיאור, מק"ט,
-  שמות פריטים בחבילה) עובר כעת דרך פונקציית `escapeHtml` לפני שהוא מוזרק ל-DOM,
-  כך שלא ניתן להזריק תגיות/סקריפטים דרך טופס העריכה.
-- **ולידציה מלאה בטפסים:** מחיר, הנחה, דגם וקטגוריה נבדקים ומוגבלים לטווחים
-  הגיוניים לפני שמירה; שדות טקסט מוגבלים באורך (גם ב-HTML `maxlength` וגם
-  בקוד). תמונות שמועלות נבדקות שהן קובצי תמונה בגודל סביר (עד 4MB).
-- **ייבוא קובצי JSON:** כל פריט בקובץ המיובא נבדק בנפרד (שם/מק"ט/מחיר/דגם/
-  קטגוריה תקינים). פריטים לא תקינים **נפסלים ולא נשמרים**, ומוצגת רשימת
-  שגיאות ברורה; רק פריטים תקינים נשמרים ל-Supabase.
-- כל פעולת כתיבה (הוספה/עריכה/מחיקה) בודקת ש-`adminMode` פעיל **וגם** מוגנת
-  בפועל ע"י ה-RLS בשרת — כך שגם אם מישהו יעקוף את הממשק, השרת יחסום אותו.
+  <section class="hero">
+    <div class="chevrons" aria-hidden="true">
+      <div class="chevron-row" style="top:38%;">
+        <span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span>
+      </div>
+      <div class="chevron-row right" style="top:52%;">
+        <span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span><span class="chevron"></span>
+      </div>
+    </div>
 
-## 2. ביצועים
+    <div class="hero-inner">
+      <div class="model-switch" id="modelSwitch" role="group" aria-label="בחירת דגם רכב">
+        <button data-model="starray" class="active" aria-pressed="true">STARRAY EM-i</button>
+        <button data-model="ex5" aria-pressed="false">EX5</button>
+      </div>
 
-- **כל התמונות (35 מוצרים × 2 דגמים + 2 תמונות hero) הוצאו מה-HTML** והומרו
-  מ-base64 מוטמע (כ-1.2MB טקסט) לקבצי `.webp` נפרדים בתיקיית `images/`
-  (סה"כ כ-560KB, ומתחלק לקבצים קטנים שנטענים לפי צורך ולא בבת אחת).
-- **Lazy loading אמיתי:** תמונות המוצרים בגריד משתמשות ב-`loading="lazy"
-  decoding="async"` המובנה בדפדפן — תמונה לא נטענת עד שהיא קרובה לאזור
-  התצוגה.
-- **פיצול לקבצים נפרדים:** HTML / CSS / JS / נתונים בקבצים נפרדים, כך שהדפדפן
-  יכול לשמור אותם ב-cache בנפרד (עדכון קוד לא מחייב הורדת כל התמונות מחדש
-  וההפך).
-- **קובץ ה-HTML הראשי צנח מ-~1.3MB ל-~13KB.**
-- קטלוג הבסיס (`data.json`) עצמו קטן (כ-15KB) ומשמש רק לזריעה חד-פעמית של
-  מסד נתונים ריק — הנתונים בפועל תמיד נטענים מ-Supabase.
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow" id="heroEyebrow"><span class="dot"></span> <span id="eyebrowText">מחירון עדכני &middot; כולל מע״מ</span></div>
+          <h1>אביזרי <span class="modelname" id="heroModelName">STARRAY EM-i</span><br>המקוריים</h1>
+          <p id="heroText">שדרוג, הגנה וטעינה &mdash; כל האביזרים הרשמיים לרכב שלך, במקום אחד. חפשו, השוו ובחרו את מה שמתאים לכם.</p>
+          <button id="editHomeBtn" class="admin-btn on" style="display:none; margin-bottom:18px;">&#9998;&#65039; עריכת עמוד הבית</button>
+        </div>
+        <div class="hero-car-wrap">
+          <div class="price-ribbon">GEELY ORIGINAL</div>
+          <img id="heroImg" src="" alt="" width="640" height="360">
+        </div>
+      </div>
+    </div>
+  </section>
 
-## 3. נגישות
+  <div class="controls" id="catalog">
+    <div class="search-row">
+      <label for="searchInput" class="visually-hidden">חיפוש אביזרים לפי שם או מק"ט</label>
+      <div class="search-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="searchInput" type="search" placeholder="חיפוש לפי שם או מק&quot;ט...">
+      </div>
+      <button type="button" class="share-btn" id="shareBtn">🔗 שיתוף קישור</button>
+      <div class="result-count" id="resultCount" aria-live="polite"></div>
+    </div>
+    <div class="chip-row" id="chipRow" role="group" aria-label="סינון לפי קטגוריה"></div>
+  </div>
 
-- לכל שדה טופס יש `<label for="...">` מקושר לפי `id` (כולל כל המודלים:
-  הוספת/עריכת אביזר, חבילה, עמוד בית, עמוד נחיתה, והתחברות מנהל).
-- לכל כפתור עם אייקון בלבד (עריכה ✎, מחיקה 🗑, סגירת שגיאה, סגירת lightbox)
-  נוסף `aria-label` תיאורי (כולל שם המוצר/חבילה הרלוונטיים).
-- כל חלונות המודל (`modal-overlay`) מסומנים כ-`role="dialog"
-  aria-modal="true"` עם `aria-labelledby` לכותרת שלהם, כולל **focus trap**
-  (Tab לא בורח מהחלון) והחזרת פוקוס לכפתור שפתח את החלון בעת סגירה.
-- **מקש Escape סוגר** כל חלון פתוח (מודל או lightbox).
-- תמונות מוצר ב-lightbox נגישות גם במקלדת: `tabindex="0" role="button"` עם
-  `Enter`/`Space` לפתיחה.
-- נוסף "קישור דילוג" (`skip link`) לתחילת התוכן הראשי, מוסתר עד שמקבל פוקוס.
-- אינדיקציית `:focus-visible` ברורה לכל האלמנטים האינטראקטיביים.
-- אזורי סטטוס דינמיים (מונה תוצאות, הודעת שמירה, הודעת שגיאה, טעינה)
-  מסומנים ב-`aria-live`/`role="status"`/`role="alert"` בהתאם, כדי שקוראי
-  מסך יכריזו עליהם.
+  <div class="grid-wrap">
+    <div class="grid" id="grid"></div>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <div class="icon" aria-hidden="true">&#128269;</div>
+      לא נמצאו אביזרים תואמים לחיפוש
+    </div>
+  </div>
 
-## 4. חוויית משתמש
+  <footer id="footer-contact">
+    <div id="footerLine1"><b>GEELY ישראל</b> &middot; המחירים כוללים מע״מ כחוק &middot; התמונות להמחשה בלבד</div>
+    <div id="footerLine2">*8133 &middot; www.geely.co.il</div>
+  </footer>
 
-- **תמונה לחבילה (חדש):** בעריכת/הוספת חבילה יש כעת שדה העלאת תמונה, בדיוק
-  כמו באביזר בודד. אם מוגדרת תמונה היא מוצגת בראש כרטיס החבילה בקטלוג.
-  חבילות בלי תמונה נראות בדיוק כמו קודם — שום דבר לא השתנה בעיצוב שלהן.
-- **פרטי אביזר בתוך חבילה, בהצבעה/הקלקה (חדש):** כל שורת "אביזר" בתוך חבילה
-  נבדקת מול קטלוג האביזרים לפי שם מדויק. אם נמצאה התאמה, השורה הופכת לתגית
-  לחיצה: בהעברת עכבר מוצג המחיר הנוכחי שלו (tooltip), ולחיצה עליה קופצת
-  ישירות לאביזר עצמו (כולל פתיחת תמונה מוגדלת). אם לא נמצאה התאמה (למשל
-  שורה שמתארת שירות ולא אביזר קטלוגי) — היא נשארת תגית טקסט רגילה כמו קודם,
-  בלי קישור שגוי.
-  - **לשים לב:** ההתאמה מבוססת על שם מדויק (זהה, ללא רגישות לרישיות) בין
-    השורה בחבילה לבין שם האביזר בקטלוג עבור אותו דגם. אם משנים את שם אביזר
-    בקטלוג, כדאי לעדכן בהתאם גם את הטקסט ברשימת הפריטים של החבילות שמכילות
-    אותו, אחרת הקישור פשוט ייעלם (יחזור לטקסט רגיל, לא ישבור כלום).
+  </div><!-- /mainApp -->
 
-- **Supabase הוא מקור הנתונים היחיד**: המסך הראשי לא מוצג עד שהנתונים
-  התקבלו בהצלחה מה-DB (במקום להציג תוכן מוטמע-מראש ואז להחליף אותו).
-- **מסך טעינה** מוצג בזמן הטעינה הראשונית מה-Supabase.
-- **הודעות שגיאה ברורות** (באנר עליון עם כפתור "נסה שוב") בכל כשל תקשורת
-  עם השרת — טעינה, שמירה, מחיקה, או ייבוא.
-- **שיתוף קישורים**: מצב הדגם, הקטגוריה, וטקסט החיפוש מסונכרנים לכתובת ה-URL
-  (`?model=ex5&cat=charging&q=...`), עם כפתור "🔗 שיתוף קישור" שמעתיק את
-  הקישור הנוכחי ללוח. פתיחת קישור כזה מדלגת ישירות לקטלוג הרלוונטי.
-- **ניקוי קוד:** הוסרו מפתחות `localStorage` מתים שלא היו בשימוש בפועל
-  (`geely_products_v1` וכו'), ופונקציית "הורדת אתר מעודכן" עודכנה כך שתסביר
-  שיש להשתמש בקבצי המקור הנפרדים (מאחר שהאתר כבר אינו קובץ בודד).
+  <button id="addFab" class="add-fab">&#43; הוסף אביזר</button>
 
-## שער כניסה לאתר (קוד 2514) — חשוב להבין את המגבלות
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <h2 id="modalTitle">הוספת אביזר</h2>
+      <input type="hidden" id="f_originalCode">
+      <div class="field">
+        <label for="f_imgFile">תמונה</label>
+        <label class="img-upload" for="f_imgFile">
+          <img id="f_imgPreview" src="" style="display:none;" alt="">
+          <span id="f_imgLabel">לחצו כדי להעלות תמונה (אופציונלי)</span>
+          <input type="file" id="f_imgFile" accept="image/*" style="display:none;">
+        </label>
+      </div>
+      <div class="field">
+        <label for="f_name">שם האביזר</label>
+        <input type="text" id="f_name" placeholder='לדוגמה: מגני רוח' maxlength="120" required>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="f_code">מק"ט</label>
+          <input type="text" id="f_code" placeholder="EX-061" maxlength="40" required>
+        </div>
+        <div class="field">
+          <label for="f_price">מחיר רגיל (כולל מע"מ)</label>
+          <input type="number" id="f_price" placeholder="390" min="0" step="1" required>
+        </div>
+      </div>
+      <div class="field">
+        <label for="f_discount">אחוז הנחה (אופציונלי) &mdash; אם מוגדר, יוצג מחיר לפני הנחה מחוק + תג חיסכון</label>
+        <input type="number" id="f_discount" placeholder="0" min="0" max="95">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="f_model">דגם רכב</label>
+          <select id="f_model">
+            <option value="both">שני הדגמים</option>
+            <option value="starray">STARRAY EM-i בלבד</option>
+            <option value="ex5">EX5 בלבד</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f_cat">קטגוריה</label>
+          <select id="f_cat">
+            <option value="charging">טעינה וחשמל</option>
+            <option value="multimedia">מולטימדיה ואבטחה</option>
+            <option value="protection">הגנה ואחסון</option>
+            <option value="styling">עיצוב ומיתוג</option>
+            <option value="services">שירותים</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="f_desc">תיאור קצר</label>
+        <textarea id="f_desc" placeholder="תיאור קצר של האביזר..." maxlength="400"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn secondary" id="cancelBtn" type="button">ביטול</button>
+        <button class="btn danger" id="deleteBtn" type="button" style="display:none;">מחיקה</button>
+        <button class="btn primary" id="saveBtn" type="button">שמירה</button>
+      </div>
+    </div>
+  </div>
 
-לפי בקשתך הוספתי מסך שמבקש קוד גישה (`2514`) לפני שהקטלוג נטען. **חשוב
-שתדע בדיוק מה זה כן ולא עושה**, כדי שלא תסתמך עליו בטעות למשהו שהוא לא:
+  <div class="modal-overlay" id="homeModalOverlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="homeModalTitle">
+      <h2 id="homeModalTitle">עריכת עמוד הבית</h2>
+      <div class="field">
+        <label for="h_imgFile">תמונת רכב ראשית &mdash; עבור <span id="homeModelLabel">STARRAY EM-i</span></label>
+        <label class="img-upload" for="h_imgFile">
+          <img id="h_imgPreview" src="" style="display:none;" alt="">
+          <span id="h_imgLabel">לחצו כדי להחליף תמונה</span>
+          <input type="file" id="h_imgFile" accept="image/*" style="display:none;">
+        </label>
+      </div>
+      <div class="field">
+        <label for="h_eyebrow">טקסט תגית עליונה (eyebrow)</label>
+        <input type="text" id="h_eyebrow" maxlength="120">
+      </div>
+      <div class="field">
+        <label for="h_heroText">טקסט תיאור מתחת לכותרת &mdash; עבור <span id="homeModelLabel2">STARRAY EM-i</span></label>
+        <textarea id="h_heroText" maxlength="400"></textarea>
+      </div>
+      <div class="field">
+        <label for="h_footer1">שורת פוטר ראשונה</label>
+        <input type="text" id="h_footer1" maxlength="200">
+      </div>
+      <div class="field">
+        <label for="h_footer2">שורת פוטר שנייה (טלפון/אתר)</label>
+        <input type="text" id="h_footer2" maxlength="200">
+      </div>
+      <div class="modal-actions">
+        <button class="btn secondary" id="homeCancelBtn" type="button">ביטול</button>
+        <button class="btn primary" id="homeSaveBtn" type="button">שמירה</button>
+      </div>
+    </div>
+  </div>
 
-- **כן עושה:** מונע מגולש מזדמן, בוט חיפוש, או מישהו שקיבל את הקישור
-  בטעות, לראות את הקטלוג בלי לדעת את הקוד. נוח לתת קישור + קוד ללקוחות
-  ספציפיים בלי לחשוף את זה לכולם.
-- **לא עושה — ולא יכול לעשות, בשום קוד צד-לקוח:** זו לא הגנה אמיתית. הקוד
-  `2514` יושב בתוך `app.js`, קובץ שכל אחד יכול לפתוח ולקרוא (תצוגת מקור /
-  DevTools). מעבר לכך, הנתונים עצמם (המחירים, התיאורים, התמונות) עדיין
-  ניתנים לשליפה ישירה מ-Supabase על ידי מי שמכיר את כתובת הפרויקט וה-
-  `anon key` — **בלי קשר בכלל** למסך הזה, כי קריאה (SELECT) פתוחה תמיד
-  לפי העיצוב של Supabase RLS (ראו סעיף 1). מי שבאמת רוצה לעקוף את המסך —
-  יכול, בכמה שניות.
-- **המסך הזה לא קשור בכלל להגנה על כתיבה/עריכה/מחיקה.** ה-RLS ומצב הניהול
-  (Supabase Auth) ממשיכים להיות ההגנה האמיתית על היכולת לשנות נתונים, והם
-  לא מושפעים מהמסך הזה בשום צורה.
-- **המלצה:** אם המטרה היא רק "לא לתת לזה להופיע בגוגל ולא לתת לכל מי
-  שנתקל בקישור לראות סתם ככה" — המסך הזה מתאים בול לזה, וזה בסדר גמור
-  להשתמש בו למטרה הזו. אם המטרה היא להגן על מידע עסקי רגיש שממש אסור
-  שיזלוג — זה **לא** הכלי הנכון, וצריך שיחה נפרדת (למשל: הפיכת כל הקטלוג
-  ל"פרטי" עם התחברות אמיתית לכל משתמש, שזה שינוי הרבה יותר גדול).
-- **שינוי הקוד:** אם תרצה קוד אחר בעתיד, הוא נמצא ב-`app.js` בשורה עם
-  `const SITE_ACCESS_CODE = '2514';` — חיפוש טקסט פשוט ימצא אותו.
-- מי שהזין את הקוד נכון פעם אחת לא יתבקש שוב באותו דפדפן (נשמר מקומית
-  אצלו במכשיר).
+  <div class="modal-overlay" id="splashModalOverlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="splashModalTitle">
+      <h2 id="splashModalTitle">עריכת עמוד הנחיתה</h2>
+      <div class="field">
+        <label for="s_eyebrow">טקסט תגית עליונה</label>
+        <input type="text" id="s_eyebrow" maxlength="120">
+      </div>
+      <div class="field">
+        <label for="s_title">כותרת ראשית</label>
+        <input type="text" id="s_title" maxlength="120">
+      </div>
+      <div class="field">
+        <label for="s_sub">תת-כותרת</label>
+        <input type="text" id="s_sub" maxlength="160">
+      </div>
+      <div class="field">
+        <label for="s_cta">טקסט כפתור בכרטיסי הדגם</label>
+        <input type="text" id="s_cta" maxlength="60">
+      </div>
+      <p style="font-size:12px; color:var(--muted-2); margin-top:-6px;">לשינוי תמונות הרכב בכרטיסים &mdash; ערכו אותן דרך "עריכת עמוד הבית" בתוך הקטלוג של כל דגם.</p>
+      <div class="modal-actions">
+        <button class="btn secondary" id="splashCancelBtn" type="button">ביטול</button>
+        <button class="btn primary" id="splashSaveBtn" type="button">שמירה</button>
+      </div>
+    </div>
+  </div>
 
-## 5. בדיקות שבוצעו / שיש לבצע לאחר ההעלאה
+  <div class="modal-overlay" id="bundleModalOverlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="bundleModalTitle">
+      <h2 id="bundleModalTitle">הוספת חבילה</h2>
+      <input type="hidden" id="b_originalCode">
+      <div class="field">
+        <label for="b_imgFile">תמונת חבילה (אופציונלי)</label>
+        <label class="img-upload" for="b_imgFile">
+          <img id="b_imgPreview" src="" style="display:none;" alt="">
+          <span id="b_imgLabel">לחצו כדי להעלות תמונה (אופציונלי)</span>
+          <input type="file" id="b_imgFile" accept="image/*" style="display:none;">
+        </label>
+      </div>
+      <div class="field">
+        <label for="b_name">שם החבילה</label>
+        <input type="text" id="b_name" placeholder="לדוגמה: STARRAY PLUS PACK" maxlength="120">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="b_code">מק"ט</label>
+          <input type="text" id="b_code" placeholder="SR-019" maxlength="40">
+        </div>
+        <div class="field">
+          <label for="b_model">דגם רכב</label>
+          <select id="b_model">
+            <option value="starray">STARRAY EM-i</option>
+            <option value="ex5">EX5</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="b_oldprice">מחיר רגיל (לפני הנחה, אופציונלי)</label>
+          <input type="number" id="b_oldprice" placeholder="4015" min="0">
+        </div>
+        <div class="field">
+          <label for="b_price">מחיר חבילה (כולל מע"מ)</label>
+          <input type="number" id="b_price" placeholder="3650" min="0">
+        </div>
+      </div>
+      <div class="field">
+        <label for="b_items">אביזרים כלולים בחבילה (שורה לכל אביזר)</label>
+        <textarea id="b_items" placeholder="Geely Connect Plus&#10;פס תאורה קדמית STARLED&#10;סט שטיחי גומי" style="min-height:110px;" maxlength="1000"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn secondary" id="bundleCancelBtn" type="button">ביטול</button>
+        <button class="btn danger" id="bundleDeleteBtn" type="button" style="display:none;">מחיקה</button>
+        <button class="btn primary" id="bundleSaveBtn" type="button">שמירה</button>
+      </div>
+    </div>
+  </div>
 
-- [x] בדיקת תחביר JS (`node --check app.js` עבר ללא שגיאות).
-- [x] אימות ש-`data.json` תקין ומכיל את כל 35 המוצרים ו-14 החבילות.
-- [x] אימות שהקוד PIN (`8133`) לא קיים יותר בקוד כערך אימות (מופיע רק
-      כמספר טלפון בטקסט התחתית, שזה תקין).
-- [ ] **לבצע ידנית לפני עלייה לאוויר:** להריץ את `supabase-setup.sql`,
-      ליצור משתמש מנהל, ולכבות הרשמה עצמית (ראו סעיף 1).
-- [ ] לאחר ההעלאה, לוודא: חיפוש וסינון עובדים, מודלים ו-lightbox נפתחים
-      ונסגרים (כולל Escape ומקלדת), הדפסה ל-PDF תקינה לשני הדגמים, האתר
-      פעיל לחלוטין גם רק במקלדת (Tab/Shift+Tab/Enter/Escape), ושניסיון
-      לבצע פעולת ניהול ללא התחברות אכן נחסם (גם אם ננסה לקרוא ל-Supabase
-      ישירות מקונסולת הדפדפן).
+  <!-- Admin login dialog: replaces the old hard-coded PIN with real Supabase Auth -->
+  <div class="modal-overlay" id="loginModalOverlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle">
+      <h2 id="loginModalTitle">כניסת מנהל</h2>
+      <form id="loginForm" novalidate>
+        <div class="login-field">
+          <label for="login_email">דוא"ל</label>
+          <input type="email" id="login_email" autocomplete="username" required>
+        </div>
+        <div class="login-field">
+          <label for="login_password">סיסמה</label>
+          <input type="password" id="login_password" autocomplete="current-password" required>
+        </div>
+        <div class="login-error" id="loginError" role="alert"></div>
+        <div class="modal-actions">
+          <button class="btn secondary" id="loginCancelBtn" type="button">ביטול</button>
+          <button class="btn primary" id="loginSubmitBtn" type="submit">כניסה</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose" aria-label="סגירה">&#10005;</button>
+    <div class="lightbox-content" role="dialog" aria-modal="true" aria-label="תצוגה מוגדלת של אביזר">
+      <img id="lightboxImg" src="" alt="">
+      <div class="lightbox-caption">
+        <div id="lightboxName"></div>
+        <div id="lightboxPrice"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="printView" aria-hidden="true"></div>
+
+</body>
+</html>
