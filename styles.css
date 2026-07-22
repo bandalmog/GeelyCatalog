@@ -224,30 +224,26 @@
   /* ---------- print / PDF export ---------- */
   #printView{display:none;}
   @media print{
-    @page{size:A4; margin:18mm 16mm 24mm;}
+    @page{size:A4; margin:18mm 16mm 19mm;}
     body{background:#fff;}
     body > *:not(#printView){display:none !important;}
     #printView{display:block; font-family:'Heebo',sans-serif; color:#14161f;}
 
     /* thin frame + running footer repeated on every printed page — border
        and text, never a fill, so it always prints regardless of the
-       browser's "background graphics" print setting. Offsets below are
-       sized with a comfortable safety buffer around the footer's actual
-       measured height, so it can never reach up into the card content. */
+       browser's "background graphics" print setting. Kept as a single
+       flex row (matching the structure that was already known to work),
+       since stacking a second row previously caused the fixed footer to
+       misplace itself at the top of continuation pages in Chrome print. */
     .pv-page-frame{
-      position:fixed; top:-14mm; bottom:-20mm; right:-12mm; left:-12mm;
+      position:fixed; top:-14mm; bottom:-15mm; right:-12mm; left:-12mm;
       border:0.75pt solid #d8dbe4; pointer-events:none;
     }
     .pv-page-footer{
-      position:fixed; bottom:-16mm; right:0; left:0;
+      position:fixed; bottom:-11mm; right:0; left:0; display:flex; justify-content:space-between; align-items:center; gap:4mm;
+      font-size:7px; color:#9aa0b2; padding-top:2.5mm; border-top:0.5pt solid #e4e7ef; letter-spacing:.3px;
     }
-    .pv-page-footer-top{
-      display:flex; justify-content:space-between;
-      font-size:7.5px; color:#9aa0b2; padding-top:2.5mm; border-top:0.5pt solid #e4e7ef; letter-spacing:.4px;
-    }
-    .pv-legal{
-      margin-top:1.6mm; font-size:6.5px; line-height:1.5; color:#aeb2c0; text-align:center;
-    }
+    .pv-page-footer .pv-legal-short{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 
     /* ---- cover page ---- */
     .pv-cover{
