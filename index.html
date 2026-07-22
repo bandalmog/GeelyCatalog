@@ -151,7 +151,7 @@
       <div class="hero-grid">
         <div class="hero-copy">
           <div class="eyebrow" id="heroEyebrow"><span class="dot"></span> <span id="eyebrowText">מחירון עדכני &middot; כולל מע״מ</span></div>
-          <h1>אביזרי <span class="modelname" id="heroModelName">STARRAY EM-i</span><br>המקוריים</h1>
+          <h1 id="heroTitle">אביזרי <span class="modelname">STARRAY EM-i</span><br>המקוריים</h1>
           <p id="heroText">שדרוג, הגנה וטעינה &mdash; כל האביזרים הרשמיים לרכב שלך, במקום אחד. חפשו, השוו ובחרו את מה שמתאים לכם.</p>
           <button id="editHomeBtn" class="admin-btn on" style="display:none; margin-bottom:18px;">&#9998;&#65039; עריכת עמוד הבית</button>
         </div>
@@ -265,6 +265,10 @@
           <span id="h_imgLabel">לחצו כדי להחליף תמונה</span>
           <input type="file" id="h_imgFile" accept="image/*" style="display:none;">
         </label>
+      </div>
+      <div class="field">
+        <label for="h_title">כותרת ראשית ליד התמונה &mdash; עבור <span id="homeModelLabel3">STARRAY EM-i</span> (שורה חדשה = ירידת שורה)</label>
+        <textarea id="h_title" maxlength="120" rows="2"></textarea>
       </div>
       <div class="field">
         <label for="h_eyebrow">טקסט תגית עליונה (eyebrow)</label>

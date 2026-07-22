@@ -257,8 +257,15 @@ function applySplashText() {
 
 function applyHero() {
   const m = SITE_CONTENT.models[state.model];
+  const name = HERO_NAME[state.model];
   document.getElementById('heroImg').src = m.img;
-  document.getElementById('heroModelName').textContent = HERO_NAME[state.model];
+  const titleText = (m.title && m.title.trim()) || `אביזרי ${name} המקוריים`;
+  let titleHtml = escapeHtml(titleText).replace(/\n/g, '<br>');
+  const escName = escapeHtml(name);
+  if (titleHtml.includes(escName)) {
+    titleHtml = titleHtml.replace(escName, `<span class="modelname">${escName}</span>`);
+  }
+  document.getElementById('heroTitle').innerHTML = titleHtml;
   document.getElementById('heroText').textContent = m.text;
   document.getElementById('eyebrowText').textContent = SITE_CONTENT.eyebrow;
   document.getElementById('footerLine1').textContent = SITE_CONTENT.footer1;
@@ -1199,14 +1206,16 @@ document.getElementById('editHomeBtn').addEventListener('click', () => {
   const m = SITE_CONTENT.models[state.model];
   document.getElementById('homeModelLabel').textContent = HERO_NAME[state.model];
   document.getElementById('homeModelLabel2').textContent = HERO_NAME[state.model];
+  document.getElementById('homeModelLabel3').textContent = HERO_NAME[state.model];
   document.getElementById('h_imgPreview').src = m.img;
   document.getElementById('h_imgPreview').style.display = 'block';
+  document.getElementById('h_title').value = (m.title && m.title.trim()) || `אביזרי ${HERO_NAME[state.model]} המקוריים`;
   document.getElementById('h_eyebrow').value = SITE_CONTENT.eyebrow;
   document.getElementById('h_heroText').value = m.text;
   document.getElementById('h_footer1').value = SITE_CONTENT.footer1;
   document.getElementById('h_footer2').value = SITE_CONTENT.footer2;
   pendingHeroImage = null;
-  openOverlay('homeModalOverlay', '#h_eyebrow');
+  openOverlay('homeModalOverlay', '#h_title');
 });
 
 document.getElementById('homeCancelBtn').addEventListener('click', () => closeOverlay('homeModalOverlay'));
@@ -1230,6 +1239,7 @@ document.getElementById('homeSaveBtn').addEventListener('click', () => {
   if (!adminMode) return;
   const m = SITE_CONTENT.models[state.model];
   if (pendingHeroImage) m.img = pendingHeroImage;
+  m.title = document.getElementById('h_title').value.trim().slice(0, 120);
   m.text = document.getElementById('h_heroText').value.trim().slice(0, 400);
   SITE_CONTENT.eyebrow = document.getElementById('h_eyebrow').value.trim().slice(0, 120);
   SITE_CONTENT.footer1 = document.getElementById('h_footer1').value.trim().slice(0, 200);
