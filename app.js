@@ -380,7 +380,9 @@ function goToProduct(code) {
   syncStateToUrl();
   render();
   openLightbox(p.code);
-  document.getElementById('bundleReturnBanner').hidden = false;
+  // Note: no "return to bundle" banner needed anymore — closing the
+  // lightbox in any way (click outside, X, or Escape) restores the
+  // bundle view automatically. See closeLightbox().
 }
 
 function hideBundleReturnBanner() {
@@ -388,18 +390,23 @@ function hideBundleReturnBanner() {
   bundleReturnState = null;
 }
 
-document.getElementById('bundleReturnBtn').addEventListener('click', () => {
+function returnToBundleView() {
   if (!bundleReturnState) return;
   state.cat = bundleReturnState.cat;
   state.model = bundleReturnState.model;
   state.q = bundleReturnState.q;
   document.getElementById('searchInput').value = state.q;
-  closeLightbox();
   applyHero();
   buildChips();
   syncStateToUrl();
   render();
   hideBundleReturnBanner();
+}
+
+// Kept for backward compatibility in case the banner button markup is
+// ever re-shown; closing the lightbox now triggers the same behavior.
+document.getElementById('bundleReturnBtn').addEventListener('click', () => {
+  closeLightbox();
 });
 
 function render() {
@@ -580,6 +587,12 @@ function openLightbox(code) {
 }
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('show');
+  if (bundleReturnState) {
+    // Item was opened from inside a bundle — go straight back to it
+    // instead of leaving the user on a single-item filtered catalog view.
+    returnToBundleView();
+    return;
+  }
   if (lastFocusedEl) lastFocusedEl.focus();
 }
 document.getElementById('grid').addEventListener('click', (e) => {

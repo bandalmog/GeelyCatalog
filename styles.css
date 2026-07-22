@@ -80,7 +80,7 @@
     content:''; position:absolute; left:-9px; top:0; border-top:16px solid transparent;
     border-bottom:16px solid transparent; border-right:9px solid var(--pink);
   }
-  .hero-car-wrap img{width:100%; display:block; filter:drop-shadow(0 24px 34px rgba(20,22,31,.18));}
+  .hero-car-wrap img{width:100%; height:auto; max-height:380px; display:block; object-fit:contain; filter:drop-shadow(0 24px 34px rgba(20,22,31,.18));}
 
   /* ---------- controls ---------- */
   .controls{
