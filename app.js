@@ -83,14 +83,14 @@ function toDbProduct(p) {
   return {
     code: p.code, name: p.name, price: p.price, discount: p.discount || 0,
     model: p.model, cat: p.cat, description: p.desc || '',
-    img_sr: p.img_sr || null, img_ex: p.img_ex || null,
+    img_sr: p.img_sr || null, img_ex: p.img_ex || null, blocked: !!p.blocked,
   };
 }
 function fromDbProduct(row) {
   return {
     code: row.code, name: row.name, price: row.price, discount: row.discount || 0,
     model: row.model, cat: row.cat, desc: row.description || '',
-    img_sr: row.img_sr, img_ex: row.img_ex,
+    img_sr: row.img_sr, img_ex: row.img_ex, blocked: !!row.blocked,
   };
 }
 function toDbBundle(b) {
@@ -127,7 +127,7 @@ function validateProduct(p) {
   if (errors.length) return { ok: false, errors };
   return {
     ok: true,
-    value: { code, name, price, discount, model, cat, desc, img_sr: p.img_sr || null, img_ex: p.img_ex || null },
+    value: { code, name, price, discount, model, cat, desc, img_sr: p.img_sr || null, img_ex: p.img_ex || null, blocked: !!p.blocked },
   };
 }
 
@@ -477,6 +477,7 @@ function render() {
 
   const list = PRODUCTS.filter((p) => {
     if (!matchesModel(p)) return false;
+    if (p.blocked && !adminMode) return false;
     if (state.cat !== 'all' && p.cat !== state.cat) return false;
     if (q && !(p.name.toLowerCase().includes(q) || p.code.toLowerCase().includes(q) || (p.desc || '').toLowerCase().includes(q))) return false;
     return true;
@@ -496,13 +497,15 @@ function render() {
     const topLeftBadges = (modelBadge || discountRibbon) ? `<div class="badges-topleft">${modelBadge}${discountRibbon}</div>` : '';
     const adminOverlay = adminMode ? `
       <div class="card-admin-actions">
+        <button class="icon-btn block${p.blocked ? ' is-blocked' : ''}" data-block="${escapeHtml(p.code)}" aria-label="${p.blocked ? 'שחרור חסימה' : 'חסימת פריט'} — ${escapeHtml(p.name)}" title="${p.blocked ? 'הצג שוב בקטלוג' : 'הסתר מהקטלוג (חסר במלאי)'}">${p.blocked ? '&#128065;&#65039;' : '&#128683;'}</button>
         <button class="icon-btn edit" data-edit="${escapeHtml(p.code)}" aria-label="עריכת אביזר ${escapeHtml(p.name)}">&#9998;&#65039;</button>
         <button class="icon-btn del" data-del="${escapeHtml(p.code)}" aria-label="מחיקת אביזר ${escapeHtml(p.name)}">&#128465;&#65039;</button>
       </div>` : '';
     return `
-    <div class="card ${adminMode ? 'admin-mode' : ''}" style="--i:${Math.min(pi, 12)};">
+    <div class="card ${adminMode ? 'admin-mode' : ''}${p.blocked ? ' is-blocked' : ''}" style="--i:${Math.min(pi, 12)};">
       <div class="img-wrap">
         ${topLeftBadges}
+        ${p.blocked ? `<div class="blocked-tag">חסום &middot; לא מוצג</div>` : ''}
         <div class="cat-tag" style="background:${cat.color}">${escapeHtml(cat.label)}</div>
         ${img ? `<img src="${img}" alt="${escapeHtml(p.name)}" loading="lazy" decoding="async" class="zoomable" data-zoom="${escapeHtml(p.code)}" tabindex="0" role="button" aria-label="הצגת תמונה מוגדלת של ${escapeHtml(p.name)}">` : `<div class="placeholder"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>`}
         ${adminOverlay}
@@ -525,6 +528,7 @@ function render() {
   if (adminMode) {
     grid.querySelectorAll('[data-edit]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); openModal(b.dataset.edit); }));
     grid.querySelectorAll('[data-del]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); deleteProduct(b.dataset.del); }));
+    grid.querySelectorAll('[data-block]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); toggleBlockProduct(b.dataset.block); }));
   }
 }
 
@@ -558,6 +562,15 @@ function goToSplash(e) {
 }
 
 document.getElementById('backToSplashLink').addEventListener('click', goToSplash);
+
+document.getElementById('termsLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  openOverlay('termsModalOverlay', '#termsModalTitle');
+});
+document.getElementById('termsCloseBtn').addEventListener('click', () => closeOverlay('termsModalOverlay'));
+document.getElementById('termsModalOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'termsModalOverlay') closeOverlay('termsModalOverlay');
+});
 
 document.getElementById('brandLogo').addEventListener('click', goToSplash);
 document.getElementById('brandLogo').addEventListener('keydown', (e) => {
@@ -626,7 +639,7 @@ document.getElementById('lightbox').addEventListener('click', (e) => {
 document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
 
 // ---------------- Generic dialog keyboard handling (Escape + focus trap) ----------------
-const ALL_OVERLAY_IDS = ['modalOverlay', 'homeModalOverlay', 'splashModalOverlay', 'bundleModalOverlay', 'loginModalOverlay'];
+const ALL_OVERLAY_IDS = ['modalOverlay', 'homeModalOverlay', 'splashModalOverlay', 'bundleModalOverlay', 'loginModalOverlay', 'termsModalOverlay'];
 
 function topOpenOverlay() {
   for (const id of ALL_OVERLAY_IDS) {
@@ -806,6 +819,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     desc: document.getElementById('f_desc').value.trim(),
     img_sr: pendingImageData || (existing ? existing.img_sr : null),
     img_ex: pendingImageData || (existing ? existing.img_ex : null),
+    blocked: existing ? !!existing.blocked : false,
   };
 
   const result = validateProduct(draft);
@@ -852,6 +866,26 @@ async function deleteProduct(code) {
   } catch (err) {
     console.error(err);
     showError('המחיקה נכשלה: ' + (err.message || 'שגיאת שרת'));
+  }
+}
+
+// "Block item": hides an out-of-stock accessory from the public catalog
+// and from generated PDFs, without deleting it — one click to restore it
+// once stock is back.
+async function toggleBlockProduct(code) {
+  if (!adminMode) return;
+  const p = PRODUCTS.find((x) => x.code === code);
+  if (!p) return;
+  const nextBlocked = !p.blocked;
+  try {
+    const { error } = await sb.from('accessories').update({ blocked: nextBlocked }).eq('code', code);
+    if (error) throw error;
+    p.blocked = nextBlocked;
+    render();
+    showToast(nextBlocked ? '✓ הפריט נחסם ולא יוצג בקטלוג' : '✓ הפריט זמין שוב בקטלוג');
+  } catch (err) {
+    console.error(err);
+    showError('הפעולה נכשלה: ' + (err.message || 'שגיאת שרת'));
   }
 }
 
@@ -1076,7 +1110,7 @@ function exportPdf(model) {
   const pv = document.getElementById('printView');
   const modelName = HERO_NAME[model];
   const heroImg = SITE_CONTENT.models[model].img;
-  const prods = PRODUCTS.filter((p) => p.model === 'both' || p.model === model);
+  const prods = PRODUCTS.filter((p) => (p.model === 'both' || p.model === model) && !p.blocked);
   const bnds = BUNDLES.filter((b) => b.model === model);
   const issueDate = new Date().toLocaleDateString('he-IL', { year: 'numeric', month: 'long', day: 'numeric' });
 
@@ -1180,8 +1214,11 @@ function exportPdf(model) {
     </div>
 
     <div class="pv-page-footer">
-      <span>GEELY &middot; קטלוג ${escapeHtml(modelName)} רשמי</span>
-      <span>${escapeHtml(issueDate)}</span>
+      <div class="pv-page-footer-top">
+        <span>GEELY &middot; קטלוג ${escapeHtml(modelName)} רשמי</span>
+        <span>${escapeHtml(issueDate)}</span>
+      </div>
+      <div class="pv-legal">הקטלוג מופעל על ידי גיאו מוביליטי בע"מ, ח.פ. 516271350, יבואנית רכבי GEELY בישראל. המחירים בש"ח וכוללים מע"מ כשיעורו כדין, נכונים למועד פרסומם וניתנים לעדכון מעת לעת. התמונות להמחשה בלבד. המוצרים בכפוף למלאי הקיים. אין כפל מבצעים והנחות. אספקה והתקנה בהתאם לתנאי ההזמנה. ט.ל.ח. הרכישה כפופה להבהרות המשפטיות המלאות המופיעות בקטלוג. שירות לקוחות 8133* www.geely.co.il</div>
     </div>
   `;
 

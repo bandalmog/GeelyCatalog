@@ -39,6 +39,12 @@ create table if not exists bundles (
   img text
 );
 
+-- "Block item" feature: lets an admin hide an out-of-stock accessory from
+-- the public catalog (and from generated PDFs) without deleting it, so it
+-- can be un-blocked again once stock is back. Safe to run even if the
+-- column already exists — it only adds it once.
+alter table accessories add column if not exists blocked boolean not null default false;
+
 -- If the "bundles" table already existed from before (no "img" column yet),
 -- this adds it without touching any existing rows.
 alter table bundles add column if not exists img text;

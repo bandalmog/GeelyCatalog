@@ -166,6 +166,11 @@
     border-top:1px solid var(--line); padding:34px 28px; text-align:center; color:var(--muted-2); font-size:12.5px; line-height:2;
   }
   footer b{color:var(--muted);}
+  .legal-disclaimer{
+    max-width:900px; margin:16px auto 0; padding-top:16px; border-top:1px solid var(--line);
+    font-size:10.5px; line-height:1.9; color:var(--muted-2);
+  }
+  .legal-disclaimer a{color:var(--muted-2); text-decoration:underline;}
 
   /* ---------- bundles ---------- */
   .bundle-card{
@@ -219,7 +224,7 @@
   /* ---------- print / PDF export ---------- */
   #printView{display:none;}
   @media print{
-    @page{size:A4; margin:18mm 16mm;}
+    @page{size:A4; margin:18mm 16mm 26mm;}
     body{background:#fff;}
     body > *:not(#printView){display:none !important;}
     #printView{display:block; font-family:'Heebo',sans-serif; color:#14161f;}
@@ -228,12 +233,18 @@
        and text, never a fill, so it always prints regardless of the
        browser's "background graphics" print setting */
     .pv-page-frame{
-      position:fixed; top:-14mm; bottom:-14mm; right:-12mm; left:-12mm;
+      position:fixed; top:-14mm; bottom:-19mm; right:-12mm; left:-12mm;
       border:0.75pt solid #d8dbe4; pointer-events:none;
     }
     .pv-page-footer{
-      position:fixed; bottom:-11mm; right:0; left:0; display:flex; justify-content:space-between;
+      position:fixed; bottom:-18mm; right:0; left:0;
+    }
+    .pv-page-footer-top{
+      display:flex; justify-content:space-between;
       font-size:7.5px; color:#9aa0b2; padding-top:2.5mm; border-top:0.5pt solid #e4e7ef; letter-spacing:.4px;
+    }
+    .pv-legal{
+      margin-top:1.6mm; font-size:5.6px; line-height:1.55; color:#aeb2c0; text-align:center;
     }
 
     /* ---- cover page ---- */
@@ -362,6 +373,15 @@
   .icon-btn:hover{transform:scale(1.08);}
   .icon-btn.edit{background:var(--grad); color:#fff;}
   .icon-btn.del{background:#e14b4b; color:#fff;}
+  .icon-btn.block{background:#f5a623; color:#fff;}
+  .icon-btn.block.is-blocked{background:#2fa86a;}
+
+  .card.is-blocked{opacity:.6;}
+  .card.is-blocked .img-wrap img{filter:grayscale(.6);}
+  .blocked-tag{
+    position:absolute; bottom:10px; left:10px; z-index:3; font-size:10.5px; font-weight:800; letter-spacing:.3px;
+    padding:5px 10px; border-radius:999px; background:#e14b4b; color:#fff;
+  }
 
   .add-fab{
     position:fixed; bottom:28px; left:28px; z-index:60; background:var(--grad); color:#fff; border:none;
@@ -379,7 +399,36 @@
     background:var(--surface); border:1px solid var(--line); border-radius:20px; width:100%; max-width:560px;
     max-height:88vh; overflow-y:auto; padding:26px; box-shadow:var(--shadow-lg);
   }
+  .modal.modal-wide{max-width:760px;}
   .modal h2{margin:0 0 20px; font-size:20px; font-weight:800;}
+
+  .terms-content{
+    font-size:13.5px; line-height:1.85; color:var(--text); max-height:60vh; overflow-y:auto;
+    padding-inline-end:6px; margin-bottom:18px; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    padding-block:18px;
+  }
+  .terms-sections{counter-reset:terms-section; list-style:none; margin:0; padding:0;}
+  .terms-sections > li{counter-increment:terms-section; margin-bottom:22px;}
+  .terms-sections > li:last-child{margin-bottom:0;}
+  .terms-sections h3{
+    font-size:15px; font-weight:800; margin:0 0 10px; padding-inline-start:30px; position:relative; color:var(--text);
+  }
+  .terms-sections h3::before{
+    content:counter(terms-section) ".";
+    position:absolute; inset-inline-start:0; top:0; color:var(--blue); font-weight:900;
+  }
+  .terms-sub{
+    counter-reset:terms-sub; list-style:none; margin:0; padding-inline-start:30px;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .terms-sub > li{
+    counter-increment:terms-sub; position:relative; padding-inline-start:28px; color:var(--muted);
+  }
+  .terms-sub > li::before{
+    content:counter(terms-section) "." counter(terms-sub); position:absolute; inset-inline-start:0; top:0;
+    color:var(--muted-2); font-weight:700; font-size:12.5px;
+  }
+  .terms-sub strong{color:var(--text); font-weight:800;}
   .field{margin-bottom:16px;}
   .field label{display:block; font-size:12.5px; color:var(--muted); margin-bottom:6px; font-weight:700;}
   .field input[type=text], .field input[type=number], .field textarea, .field select{
