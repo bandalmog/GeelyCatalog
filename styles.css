@@ -32,7 +32,8 @@
     padding:14px 28px; background:rgba(255,255,255,.82); backdrop-filter:blur(14px);
     border-bottom:1px solid var(--line);
   }
-  .brand{display:flex; align-items:center; gap:10px; font-weight:900; font-size:18px; letter-spacing:.5px;}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:900; font-size:18px; letter-spacing:.5px; transition:opacity .2s;}
+  .brand:hover, .brand:focus-visible{opacity:.72;}
   .brand .grid-logo{display:grid; grid-template-columns:repeat(3,7px); grid-template-rows:repeat(2,7px); gap:2px;}
   .brand .grid-logo span{background:var(--text); display:block; border-radius:1px;}
   .topbar nav{display:flex; gap:22px; font-size:14px; color:var(--muted);}

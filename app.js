@@ -540,14 +540,21 @@ document.querySelectorAll('.splash-card').forEach((card) => {
   card.addEventListener('click', () => enterCatalog(card.dataset.model));
 });
 
-document.getElementById('backToSplashLink').addEventListener('click', (e) => {
-  e.preventDefault();
+function goToSplash(e) {
+  if (e) e.preventDefault();
   hideBundleReturnBanner();
   document.getElementById('mainApp').style.display = 'none';
   document.getElementById('splashScreen').style.display = 'flex';
   document.getElementById('topNav').style.display = 'none';
   history.replaceState(null, '', location.pathname);
   window.scrollTo(0, 0);
+}
+
+document.getElementById('backToSplashLink').addEventListener('click', goToSplash);
+
+document.getElementById('brandLogo').addEventListener('click', goToSplash);
+document.getElementById('brandLogo').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') goToSplash(e);
 });
 
 document.getElementById('modelSwitch').addEventListener('click', (e) => {
