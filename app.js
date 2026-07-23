@@ -1217,7 +1217,6 @@ function exportPdf(model) {
 
     <div class="pv-page-footer">
       <span>GEELY &middot; קטלוג ${escapeHtml(modelName)} רשמי</span>
-      <span class="pv-legal-short">בכפוף להבהרות משפטיות מלאות (עמ' אחרון) &middot; 8133*</span>
       <span>${escapeHtml(issueDate)}</span>
     </div>
   `;
