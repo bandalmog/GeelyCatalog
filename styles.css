@@ -229,18 +229,6 @@
     body > *:not(#printView){display:none !important;}
     #printView{display:block; font-family:'Heebo',sans-serif; color:#14161f;}
 
-    /* thin frame + running footer repeated on every printed page — border
-       and text, never a fill, so it always prints regardless of the
-       browser's "background graphics" print setting */
-    .pv-page-frame{
-      position:fixed; top:-14mm; bottom:-14mm; right:-12mm; left:-12mm;
-      border:0.75pt solid #d8dbe4; pointer-events:none;
-    }
-    .pv-page-footer{
-      position:fixed; bottom:-11mm; right:0; left:0; display:flex; justify-content:space-between;
-      font-size:7.5px; color:#9aa0b2; padding-top:2.5mm; border-top:0.5pt solid #e4e7ef; letter-spacing:.4px;
-    }
-
     /* ---- cover page ---- */
     .pv-cover{
       position:relative; page-break-after:always; min-height:250mm;
@@ -309,9 +297,9 @@
     .pv-card .pv-desc{font-size:8px; color:#5a6072; line-height:1.45; min-height:7mm;}
     .pv-card .pv-foot{display:flex; justify-content:space-between; align-items:center; margin-top:2.2mm; padding-top:2mm; border-top:0.5pt dashed #e4e7ef;}
     .pv-price-wrap{display:flex; flex-direction:column; align-items:flex-start; gap:0.3mm;}
-    .pv-card .pv-price{font-size:13px; font-weight:900; color:#2f4bdd; letter-spacing:-.2px;}
-    .pv-card .pv-oldprice{font-size:8px; color:#9aa0b2; text-decoration:line-through;}
-    .pv-card .pv-sku{font-size:7px; color:#9aa0b2; direction:ltr; font-family:'JetBrains Mono',monospace;}
+    .pv-price{font-size:13px; font-weight:900; color:#2f4bdd; letter-spacing:-.2px;}
+    .pv-oldprice{font-size:8px; color:#9aa0b2; text-decoration:line-through;}
+    .pv-sku{font-size:7px; color:#9aa0b2; direction:ltr; font-family:'JetBrains Mono',monospace;}
 
     /* ---- bundle grid/cards ---- */
     .pv-grid-bundles > .pv-bundle{width:calc(50% - 5.5mm);}

@@ -1176,8 +1176,6 @@ function exportPdf(model) {
   }).join('');
 
   pv.innerHTML = `
-    <div class="pv-page-frame"></div>
-
     <div class="pv-cover">
       <div class="pv-cover-mark"><span></span><span></span><span></span><span></span><span></span><span></span></div>
       <div class="pv-cover-photo">${heroImg ? `<img src="${heroImg}">` : ''}</div>
@@ -1214,11 +1212,6 @@ function exportPdf(model) {
     </div>
 
     <div class="pv-legal-full">הקטלוג מופעל על ידי גיאו מוביליטי בע"מ, ח.פ. 516271350, יבואנית רכבי GEELY בישראל. המחירים בש"ח וכוללים מע"מ כשיעורו כדין, נכונים למועד פרסומם וניתנים לעדכון מעת לעת. התמונות להמחשה בלבד. המוצרים בכפוף למלאי הקיים. אין כפל מבצעים והנחות. אספקה והתקנה בהתאם לתנאי ההזמנה. ט.ל.ח. הרכישה כפופה להבהרות המשפטיות המלאות המופיעות בקטלוג. שירות לקוחות 8133* www.geely.co.il</div>
-
-    <div class="pv-page-footer">
-      <span>GEELY &middot; קטלוג ${escapeHtml(modelName)} רשמי</span>
-      <span>${escapeHtml(issueDate)}</span>
-    </div>
   `;
 
   const imgs = pv.querySelectorAll('img');
